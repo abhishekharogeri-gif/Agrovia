@@ -76,6 +76,16 @@
 - Docker multi-stage build: Dockerfile configured with Node 18 Alpine + Prisma generation.
 - CI pipeline: GitHub Actions updated with Docker build step (backend-test → docker-build dependency chain).
 
+
+**Phase 15 (Android CI Pipeline & ProGuard/R8 Minification)** ?
+- AGP updated to 8.9.2, Gradle to 8.11.1, Kotlin to 2.3.10.
+- Flutter compilation integrated with release build configuration.
+- ProGuard rules (\proguard-rules.pro\) added for TensorFlow Lite GPU delegates.
+- R8 Code shrinking optimizations passed.
+- GitHub Actions CI pipeline passes 4/4 jobs.
+- Multiple-ABI APK artifacts (\grovia-release-apks\) automatically uploaded on push.
+
 ---
 
 **STATUS: ALL PHASES COMPLETED. PRODUCTION HARDENED.** 🌾
+
