@@ -4,6 +4,7 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
+COPY .npmrc ./
 COPY tsconfig*.json ./
 
 # Install all dependencies including devDependencies for build
@@ -29,6 +30,7 @@ ENV NODE_ENV=production
 
 # Copy package files
 COPY package*.json ./
+COPY .npmrc ./
 
 # Install only production dependencies
 RUN npm ci --only=production
