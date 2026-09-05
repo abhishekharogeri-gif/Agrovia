@@ -1,0 +1,64 @@
+name: agrovia
+description: "Agrovia: Complete AI Digital Companion for Indian Farmers"
+publish_to: 'none'
+version: 1.8.0+1
+
+environment:
+  sdk: ^3.13.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Navigation & Routing
+  go_router: ^14.8.1
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+
+  # Networking & Real-time
+  dio: ^5.8.0+1
+  web_socket_channel: ^3.0.3
+
+  # Offline & Storage
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  flutter_secure_storage: ^9.2.4
+  shared_preferences: ^2.5.3
+
+  # Location & Sensors
+  geolocator: ^13.0.2
+  google_maps_flutter: ^2.10.1
+
+  # Camera & AI Inference
+  camera: ^0.11.1
+  tflite_flutter: ^0.11.0
+  image: ^4.5.4
+
+  # UI, Icons, Charts & Visuals
+  fl_chart: ^1.1.1
+  flutter_svg: ^2.0.17
+  lucide_icons: ^0.257.0
+  cupertino_icons: ^1.0.8
+
+  # Speech & Audio
+  speech_to_text: ^7.0.0
+  flutter_tts: ^4.2.3
+
+  # QR Code
+  mobile_scanner: ^6.0.7
+  qr_flutter: ^4.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/models/
+    - assets/images/
+    - assets/icons/

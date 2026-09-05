@@ -1,0 +1,169 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum KycStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum CallType {
+  AUDIO
+  VIDEO
+}
+
+model User {
+  id          String      @id @default(uuid())
+  phone       String      @unique
+  email       String?     @unique
+  name        String?
+  state       String?
+  district    String?
+  language    String      @default("en")
+  kycStatus   KycStatus   @default(PENDING)
+  fcmToken    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  farms       Farm[]
+  diagnoses   VisionDiagnosis[]
+  applications SchemeApplication[]
+  madeCalls   CallRecord[] @relation("CallerCalls")
+  recvCalls   CallRecord[] @relation("CalleeCalls")
+  auditLogs   AuditLog[]
+}
+
+model Farm {
+  id               String   @id @default(uuid())
+  userId           String
+  name             String
+  areaAcres        Float
+  soilType         String?
+  irrigationType   String?
+  latitude         Float?
+  longitude        Float?
+  boundaryGeoJson  Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  crops            Crop[]
+  diagnoses        VisionDiagnosis[]
+}
+
+model Crop {
+  id              String   @id @default(uuid())
+  farmId          String
+  cropName        String
+  variety         String?
+  sowingDate      DateTime
+  stage           String?
+  expectedHarvest DateTime?
+  status          String   @default("ACTIVE")
+  createdAt       DateTime @default(now())
+
+  farm            Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+}
+
+model VisionDiagnosis {
+  id                  String   @id @default(uuid())
+  userId              String
+  farmId              String?
+  imageUrl            String
+  maskUrl             String?
+  onDeviceLabel       String
+  onDeviceConfidence  Float
+  cloudVerifiedLabel  String?
+  cloudConfidence     Float?
+  diseaseSeverity     String?
+  affectedAreaPct     Float?
+  treatmentOrganic    String?
+  treatmentChemical   String?
+  stage               String?
+  createdAt           DateTime @default(now())
+
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  farm                Farm?    @relation(fields: [farmId], references: [id], onDelete: SetNull)
+}
+
+model MarketPrice {
+  id           String   @id @default(uuid())
+  commodity    String
+  variety      String?
+  state        String
+  district     String
+  marketCenter String
+  minPrice     Float
+  maxPrice     Float
+  modalPrice   Float
+  arrivalDate  DateTime
+  source       String   @default("data.gov.in")
+  createdAt    DateTime @default(now())
+
+  @@index([state, district, commodity])
+}
+
+model GovernmentScheme {
+  id                  String   @id @default(uuid())
+  title               String
+  slug                String   @unique
+  category            String
+  state               String?
+  implementingAgency  String?
+  benefitAmount       Float?
+  eligibilityRules    Json?
+  applicationUrl      String?
+  deadline            DateTime?
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+
+  applications        SchemeApplication[]
+}
+
+model SchemeApplication {
+  id               String           @id @default(uuid())
+  userId           String
+  schemeId         String
+  applicationRef   String           @unique
+  status           String           @default("SUBMITTED")
+  documentUrls     Json?
+  submittedAt      DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scheme           GovernmentScheme @relation(fields: [schemeId], references: [id], onDelete: Cascade)
+}
+
+model CallRecord {
+  id              String   @id @default(uuid())
+  callerId        String
+  calleeId        String
+  channelId       String
+  callType        CallType @default(AUDIO)
+  durationSeconds Int      @default(0)
+  status          String   @default("COMPLETED")
+  startedAt       DateTime @default(now())
+  endedAt         DateTime?
+
+  caller          User     @relation("CallerCalls", fields: [callerId], references: [id], onDelete: Cascade)
+  callee          User     @relation("CalleeCalls", fields: [calleeId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  action      String
+  resource    String
+  ipAddress   String?
+  userAgent   String?
+  payloadHash String?
+  createdAt   DateTime @default(now())
+
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
