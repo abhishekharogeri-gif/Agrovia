@@ -121,3 +121,28 @@ jobs:
           name: agrovia-release-apks
           path: app/build/app/outputs/flutter-apk/*.apk
 
+  ios-build:
+    name: Flutter iOS Release Build
+    runs-on: macos-latest
+    needs: [app-test]
+    defaults:
+      run:
+        working-directory: ./app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+      - name: Get Dependencies
+        run: flutter pub get
+      - name: Build IPA
+        run: flutter build ipa --release --no-codesign
+      - name: Upload IPA Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: agrovia-release-ipa
+          path: app/build/ios/ipa/*.ipa
+
