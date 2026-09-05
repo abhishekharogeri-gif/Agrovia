@@ -37,6 +37,7 @@ GoogleService-Info.plist
 # Build & Dist Outputs
 backend/dist/
 backend/coverage/
+*.tsbuildinfo
 build/
 dist/
 
