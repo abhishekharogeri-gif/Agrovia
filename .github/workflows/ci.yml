@@ -71,3 +71,34 @@ jobs:
           tags: agrovia/backend:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  app-build:
+    name: Flutter Release APK Build
+    runs-on: ubuntu-latest
+    needs: [app-test]
+    defaults:
+      run:
+        working-directory: ./app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+          cache: true
+      - name: Get Dependencies
+        run: flutter pub get
+      - name: Build Release APK
+        run: flutter build apk --release --split-per-abi
+      - name: Upload APK Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: agrovia-release-apks
+          path: app/build/app/outputs/flutter-apk/*.apk
+
