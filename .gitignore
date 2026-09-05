@@ -8,6 +8,7 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # Flutter / Dart
+.pub-cache/
 app/.dart_tool/
 app/.flutter-plugins
 app/.flutter-plugins-dependencies
