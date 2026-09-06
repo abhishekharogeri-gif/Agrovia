@@ -10,6 +10,7 @@ import 'screens/vision_x/vision_x_screen.dart';
 import 'screens/market/market_screen.dart';
 import 'screens/yojana_hub/yojana_hub_screen.dart';
 import 'screens/saanvi/saanvi_bottom_sheet.dart';
+import 'screens/profile/profile_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -49,6 +50,10 @@ final router = GoRouter(
           path: '/yojana-hub',
           pageBuilder: (context, state) => const NoTransitionPage(child: YojanaHubScreen()),
         ),
+        GoRoute(
+          path: '/profile',
+          pageBuilder: (context, state) => const NoTransitionPage(child: ProfileScreen()),
+        ),
       ],
     ),
   ],
@@ -70,6 +75,7 @@ class _MainShellState extends State<MainShell> {
     if (location.startsWith('/vision-x')) return 2;
     if (location.startsWith('/market')) return 3;
     if (location.startsWith('/yojana-hub')) return 4;
+    if (location.startsWith('/profile')) return 5;
     return 0;
   }
 
@@ -103,6 +109,9 @@ class _MainShellState extends State<MainShell> {
               break;
             case 4:
               context.go('/yojana-hub');
+              break;
+            case 5:
+              context.go('/profile');
               break;
           }
         },

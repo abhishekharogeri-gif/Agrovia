@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../services/api_service.dart';
 import '../../theme/agrovia_theme.dart';
 import '../../widgets/glass_container.dart';
@@ -38,6 +39,8 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
   bool _isListening = false;
   bool _isLoading = false;
   String _selectedLanguage = 'hi';
+  final stt.SpeechToText _stt = stt.SpeechToText();
+  bool _sttAvailable = false;
 
   final List<MessageItem> _chatHistory = [
     MessageItem(
@@ -56,6 +59,18 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
   void initState() {
     super.initState();
     _waveController = AnimationController(vsync: this, duration: const Duration(seconds: 1))..repeat(reverse: true);
+    _initSpeech();
+  }
+
+  Future<void> _initSpeech() async {
+    try {
+      _sttAvailable = await _stt.initialize(
+        onError: (_) {},
+        onStatus: (_) {},
+      );
+    } catch (_) {
+      _sttAvailable = false;
+    }
   }
 
   @override
@@ -160,17 +175,41 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
   }
 
   void _toggleListening() {
-    setState(() {
-      _isListening = !_isListening;
-    });
+    if (_isLoading) return;
 
     if (_isListening) {
-      // Voice input simulation
+      _stt.stop();
+      setState(() => _isListening = false);
+      return;
+    }
+
+    setState(() => _isListening = true);
+
+    if (_sttAvailable) {
+      _stt.listen(
+        onResult: (result) {
+          final text = result.recognizedWords;
+          if (text.isNotEmpty) {
+            _textController.text = text;
+            _textController.selection = TextSelection.fromPosition(
+              TextPosition(offset: text.length),
+            );
+          }
+          if (result.finalResult) {
+            setState(() => _isListening = false);
+            if (text.trim().isNotEmpty) _sendQuery(text);
+          }
+        },
+        listenOptions: stt.SpeechListenOptions(
+          partialResults: true,
+          localeId: _selectedLanguage == 'hi' ? 'hi-IN' : 'en-IN',
+        ),
+      );
+    } else {
+      // ponytail: graceful fallback when STT init fails (emulator without service)
       Future.delayed(const Duration(seconds: 3), () {
         if (mounted && _isListening) {
-          setState(() {
-            _isListening = false;
-          });
+          setState(() => _isListening = false);
           _sendQuery('सोयाबीन का आज क्या भाव है और कब बेचना चाहिए?');
         }
       });

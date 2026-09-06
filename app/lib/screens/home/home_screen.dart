@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import '../../services/weather_service.dart';
 import '../../widgets/glass_container.dart';
 import '../../theme/agrovia_theme.dart';
 
@@ -16,21 +19,71 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _userName;
   String? _userPhone;
   bool _isLoading = true;
+  Map<String, dynamic>? _weatherData;
+  Position? _position;
+  Timer? _refreshTimer;
+  final WeatherService _weatherService = WeatherService();
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    // ponytail: 15-min background refresh; cancel on dispose
+    _refreshTimer = Timer.periodic(const Duration(minutes: 15), (_) => _refreshWeather());
+  }
+
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<Position?> _resolvePosition() async {
+    try {
+      final enabled = await Geolocator.isLocationServiceEnabled();
+      if (!enabled) return null;
+      var perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
+      if (perm == LocationPermission.denied || perm == LocationPermission.deniedForever) {
+        return null;
+      }
+      return await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium),
+      );
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> _loadUserData() async {
     final user = FirebaseAuth.instance.currentUser;
+    final pos = await _resolvePosition();
+    final weather = await _weatherService.fetchWeather(
+      lat: pos?.latitude,
+      lon: pos?.longitude,
+    );
 
-    setState(() {
-      _userName = user?.displayName ?? user?.phoneNumber ?? 'Farmer';
-      _userPhone = user?.phoneNumber;
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _userName = user?.displayName ?? user?.phoneNumber ?? 'Farmer';
+        _userPhone = user?.phoneNumber;
+        _position = pos;
+        _weatherData = weather;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _refreshWeather() async {
+    final weather = await _weatherService.fetchWeather(
+      lat: _position?.latitude,
+      lon: _position?.longitude,
+    );
+    if (mounted && weather != null) {
+      setState(() => _weatherData = weather);
+    }
   }
 
   Future<void> _logout() async {
@@ -73,6 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.account_circle_outlined),
             onSelected: (value) {
+              if (value == 'profile') context.go('/profile');
               if (value == 'logout') _logout();
             },
             itemBuilder: (context) => [
@@ -88,7 +142,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               const PopupMenuDivider(),
-              const PopupMenuItem(value: 'logout', child: Row(children: [Icon(Icons.logout, size: 18), SizedBox(width: 8), Text('Sign Out')])),
+              const PopupMenuItem(
+                value: 'profile',
+                child: Row(children: [Icon(Icons.person_outline_rounded, size: 18), SizedBox(width: 8), Text('My Profile')]),
+              ),
+              const PopupMenuItem(
+                value: 'logout',
+                child: Row(children: [Icon(Icons.logout, size: 18, color: Colors.red), SizedBox(width: 8), Text('Sign Out', style: TextStyle(color: Colors.red))]),
+              ),
             ],
           ),
         ],
@@ -109,14 +170,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Indore, MP',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            Text(
+                              _weatherData?['name'] != null ? '${_weatherData!['name']}, IN' : 'Indore, MP',
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '28°C • Clear Sky',
-                              style: TextStyle(color: AgroviaColors.textSecondary),
+                              '${_weatherData?['main']?['temp']?.round() ?? 28}°C • ${_weatherData?['weather']?[0]?['description'] ?? 'Clear Sky'}',
+                              style: const TextStyle(color: AgroviaColors.textSecondary),
                             ),
                             const SizedBox(height: 8),
                             Container(
@@ -125,14 +186,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: AgroviaColors.accentGreen.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text(
-                                'Good Spray Window: 4 PM',
-                                style: TextStyle(fontSize: 12, color: AgroviaColors.accentGreen, fontWeight: FontWeight.bold),
+                              child: Text(
+                                _weatherData != null
+                                    ? _weatherService.getSprayAdvisory(_weatherData!)
+                                    : 'Good Spray Window: 4 PM',
+                                style: const TextStyle(fontSize: 12, color: AgroviaColors.accentGreen, fontWeight: FontWeight.bold),
                               ),
                             ),
                           ],
                         ),
-                        const Icon(Icons.wb_sunny_rounded, size: 48, color: Colors.orangeAccent),
+                        Text(
+                          _weatherService.getWeatherIcon(_weatherData?['weather']?[0]?['icon'] as String?),
+                          style: const TextStyle(fontSize: 40),
+                        ),
                       ],
                     ),
                   ),
