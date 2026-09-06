@@ -51,6 +51,7 @@ dependencies:
   mobile_scanner: ^6.0.7
   qr_flutter: ^4.1.0
   firebase_core: ^4.14.0
+  firebase_auth: ^6.6.1
   firebase_crashlytics: ^5.3.0
 
 dev_dependencies:
