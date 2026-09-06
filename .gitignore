@@ -35,6 +35,9 @@ google-services.json
 GoogleService-Info.plist
 
 # Build & Dist Outputs
+releases/
+*.apk
+*.aab
 backend/dist/
 backend/coverage/
 *.tsbuildinfo
