@@ -10,6 +10,7 @@ import { ConnectModule } from './connect/connect.module.js';
 import { MarketModule } from './market/market.module.js';
 import { YojanaModule } from './yojana/yojana.module.js';
 import { DpdpModule } from './dpdp/dpdp.module.js';
+import { WeatherModule } from './weather/weather.module.js';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { DpdpModule } from './dpdp/dpdp.module.js';
     MarketModule,
     YojanaModule,
     DpdpModule,
+    WeatherModule,
   ],
   controllers: [AppController],
   providers: [AppService],
