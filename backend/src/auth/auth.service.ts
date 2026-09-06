@@ -20,38 +20,46 @@ export class AuthService implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    // Initialize Firebase Admin SDK if credentials are available
-    // Expects GOOGLE_APPLICATION_CREDENTIALS env var pointing to service account JSON
-    // or Application Default Credentials in GCP / Render / Cloud Run
+    if (admin.apps.length > 0) {
+      this.firebaseApp = admin.app();
+      return;
+    }
+
+    const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID') || 'agrovia-db202';
+    const clientEmail = this.configService.get<string>('FIREBASE_CLIENT_EMAIL');
+    let privateKey = this.configService.get<string>('FIREBASE_PRIVATE_KEY');
+
     try {
-      if (!admin.apps.length) {
+      if (clientEmail && privateKey) {
+        // Unescape multiline private keys passed through .env files
+        privateKey = privateKey.replace(/\\n/g, '\n');
+        this.firebaseApp = admin.initializeApp({
+          credential: admin.credential.cert({
+            projectId,
+            clientEmail,
+            privateKey,
+          }),
+        });
+      } else {
+        // Fall back to GOOGLE_APPLICATION_CREDENTIALS or Application Default Credentials
         this.firebaseApp = admin.initializeApp({
           credential: admin.credential.applicationDefault(),
         });
-      } else {
-        this.firebaseApp = admin.app();
       }
-    } catch (e) {
-      // In local dev without creds, we'll fall back to mock path
+    } catch (_) {
       this.firebaseApp = null;
     }
   }
 
   async verifyFirebaseToken(idToken: string): Promise<{ userId: string; phone: string }> {
-    if (!idToken || idToken.length < 8) {
-      throw new UnauthorizedException('Invalid Firebase ID token.');
+    if (!idToken) {
+      throw new UnauthorizedException('Missing Firebase ID token.');
     }
 
-    // Mock path for local development without Firebase credentials
-    if (idToken.startsWith('mock.')) {
-      const [, uid, phone] = idToken.split('.');
-      if (!uid || !phone) throw new UnauthorizedException('Malformed mock token.');
-      return { userId: uid, phone };
-    }
-
-    // Production path: verify real Firebase ID token via Admin SDK
     if (!this.firebaseApp) {
-      throw new UnauthorizedException('Firebase Admin SDK not initialized. Set GOOGLE_APPLICATION_CREDENTIALS.');
+      throw new UnauthorizedException(
+        'Firebase Admin SDK not initialized. Set FIREBASE_CLIENT_EMAIL & FIREBASE_PRIVATE_KEY or GOOGLE_APPLICATION_CREDENTIALS.',
+      );
     }
 
     try {
@@ -60,7 +68,7 @@ export class AuthService implements OnModuleInit {
       const phone = decoded.phone_number;
       if (!uid) throw new UnauthorizedException('Token missing user ID.');
       return { userId: uid, phone: phone || '' };
-    } catch (e) {
+    } catch (_) {
       throw new UnauthorizedException('Invalid or expired Firebase ID token.');
     }
   }
@@ -68,7 +76,7 @@ export class AuthService implements OnModuleInit {
   signAccessToken(payload: JwtPayload): string {
     return this.jwtService.sign(payload, {
       secret: this.configService.get<string>('JWT_SECRET', 'default-secret'),
-      expiresIn: '7d', // Just hardcode to avoid TS StringValue complaints for now
+      expiresIn: '7d',
     });
   }
 }
