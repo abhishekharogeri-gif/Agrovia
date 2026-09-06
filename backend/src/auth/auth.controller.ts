@@ -1,8 +1,8 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Headers, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service.js';
 
 export class FirebaseLoginDto {
-  idToken: string;
+  idToken?: string;
 }
 
 export class LoginResponseDto {
@@ -17,8 +17,23 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() dto: FirebaseLoginDto): Promise<LoginResponseDto> {
-    const { userId, phone } = await this.authService.verifyFirebaseToken(dto.idToken);
+  async login(
+    @Headers('authorization') authHeader?: string,
+    @Body() dto?: FirebaseLoginDto,
+  ): Promise<LoginResponseDto> {
+    let idToken: string | undefined;
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      idToken = authHeader.split('Bearer ')[1]?.trim();
+    } else if (dto?.idToken) {
+      idToken = dto.idToken.trim();
+    }
+
+    if (!idToken) {
+      throw new UnauthorizedException('Missing or malformed Authorization Bearer token / idToken.');
+    }
+
+    const { userId, phone } = await this.authService.verifyFirebaseToken(idToken);
     const accessToken = this.authService.signAccessToken({ sub: userId, phone });
     return { accessToken, userId, phone };
   }
@@ -28,7 +43,7 @@ export class AuthController {
   async refresh(@Body() body: { accessToken: string }): Promise<LoginResponseDto> {
     const decoded = (this.authService as any).jwtService.decode(body.accessToken) as any;
     if (!decoded?.sub || !decoded?.phone) {
-      throw new Error('Invalid token for refresh');
+      throw new UnauthorizedException('Invalid token for refresh');
     }
     const accessToken = this.authService.signAccessToken({ sub: decoded.sub, phone: decoded.phone });
     return { accessToken, userId: decoded.sub, phone: decoded.phone };

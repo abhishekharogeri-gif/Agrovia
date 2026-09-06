@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'theme/agrovia_theme.dart';
 import 'widgets/bottom_nav_bar.dart';
 
+import 'screens/auth/phone_login_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/connect/connect_screen.dart';
 import 'screens/vision_x/vision_x_screen.dart';
@@ -17,6 +18,11 @@ final router = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/home',
   routes: [
+    GoRoute(
+      path: '/login',
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) => const NoTransitionPage(child: PhoneLoginScreen()),
+    ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
