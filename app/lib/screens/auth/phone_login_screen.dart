@@ -6,6 +6,15 @@ import 'package:go_router/go_router.dart';
 
 import '../../theme/agrovia_theme.dart';
 
+enum LoginState {
+  idle,
+  sendingOtp,
+  otpSent,
+  verifyingOtp,
+  authenticated,
+  error,
+}
+
 class PhoneLoginScreen extends StatefulWidget {
   const PhoneLoginScreen({super.key});
 
@@ -17,9 +26,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   final _phoneController = TextEditingController();
   final _otpController = TextEditingController();
 
-  bool _isLoading = false;
-  bool _codeSent = false;
+  LoginState _loginState = LoginState.idle;
   String? _verificationId;
+  int? _resendToken;
   String? _errorMsg;
 
   @override
@@ -29,133 +38,170 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     super.dispose();
   }
 
-  Future<void> _verifyPhone() async {
-    final phone = _phoneController.text.trim();
-    if (phone.isEmpty) return;
+  void _setState(LoginState state, {String? error}) {
+    if (mounted) {
+      setState(() {
+        _loginState = state;
+        if (error != null) _errorMsg = error;
+      });
+    }
+  }
 
-    setState(() {
-      _isLoading = true;
-      _errorMsg = null;
-    });
+  String _normalizePhoneNumber(String rawValue) {
+    String number = rawValue.replaceAll(RegExp(r'\D'), '');
+    if (number.length == 10) {
+      return '+91$number';
+    }
+    if (number.startsWith('91') && number.length == 12) {
+      return '+$number';
+    }
+    return '+$number';
+  }
+
+  String _mapFirebaseError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-phone-number':
+        return 'Enter a valid phone number.';
+      case 'too-many-requests':
+      case 'quota-exceeded':
+        return 'Too many OTP requests. Please try again later.';
+      case 'network-request-failed':
+        return 'Network connection failed. Check your internet connection.';
+      case 'invalid-verification-code':
+        return 'The OTP is incorrect. Please try again.';
+      case 'invalid-verification-id':
+      case 'session-expired':
+        return 'This OTP has expired. Request a new OTP.';
+      case 'operation-not-allowed':
+        return 'Phone authentication is disabled in configuration.';
+      default:
+        return 'Authentication failed: ${e.message ?? e.code}';
+    }
+  }
+
+  Future<void> _verifyPhone({bool isResend = false}) async {
+    if (_loginState == LoginState.sendingOtp) return;
+
+    final phone = _normalizePhoneNumber(_phoneController.text.trim());
+    if (phone.length < 10) {
+      _setState(LoginState.error, error: 'Enter a valid phone number.');
+      return;
+    }
+
+    _setState(LoginState.sendingOtp, error: null);
+    _otpController.clear();
 
     try {
       await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: '+91$phone', // Assuming India
+        phoneNumber: phone,
+        forceResendingToken: isResend ? _resendToken : null,
+        timeout: const Duration(seconds: 60),
         verificationCompleted: (PhoneAuthCredential credential) async {
+          // Auto-resolution (Android only)
           await _signInWithCredential(credential);
         },
         verificationFailed: (FirebaseAuthException e) {
-          setState(() {
-            _errorMsg = e.message ?? 'Verification failed';
-            _isLoading = false;
-          });
+          _setState(LoginState.error, error: _mapFirebaseError(e));
         },
         codeSent: (String verificationId, int? resendToken) {
-          setState(() {
-            _verificationId = verificationId;
-            _codeSent = true;
-            _isLoading = false;
-          });
+          _verificationId = verificationId;
+          _resendToken = resendToken;
+          _setState(LoginState.otpSent);
         },
         codeAutoRetrievalTimeout: (String verificationId) {
           _verificationId = verificationId;
         },
       );
     } catch (e) {
-      setState(() {
-        _errorMsg = e.toString();
-        _isLoading = false;
-      });
+      _setState(LoginState.error, error: 'Unexpected error starting verification');
     }
   }
 
   Future<void> _verifyOtp() async {
-    final otp = _otpController.text.trim();
-    if (otp.isEmpty || _verificationId == null) return;
+    if (_loginState == LoginState.verifyingOtp) return;
 
-    setState(() {
-      _isLoading = true;
-      _errorMsg = null;
-    });
+    final enteredOtp = _otpController.text.trim();
+    if (enteredOtp.isEmpty || _verificationId == null) {
+       _setState(LoginState.error, error: 'Enter a valid OTP.');
+       return;
+    }
+
+    _setState(LoginState.verifyingOtp, error: null);
 
     try {
       final credential = PhoneAuthProvider.credential(
         verificationId: _verificationId!,
-        smsCode: otp,
+        smsCode: enteredOtp,
       );
       await _signInWithCredential(credential);
+    } on FirebaseAuthException catch (e) {
+      _setState(LoginState.error, error: _mapFirebaseError(e));
+      _setState(LoginState.otpSent); // Revert to let them try typing again
     } catch (e) {
-      setState(() {
-        _errorMsg = 'Invalid OTP. Please try again.';
-        _isLoading = false;
-      });
+      _setState(LoginState.error, error: 'Failed to verify OTP.');
+      _setState(LoginState.otpSent);
     }
   }
 
   Future<void> _signInWithCredential(PhoneAuthCredential credential) async {
+    _setState(LoginState.verifyingOtp);
+
     try {
-      // 1. Authenticate with Firebase
       final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-      final idToken = await userCredential.user?.getIdToken();
+      final idToken = await userCredential.user?.getIdToken(true);
 
-      if (idToken == null) throw Exception('Failed to retrieve Firebase ID token');
+      if (idToken == null || idToken.isEmpty) {
+        throw FirebaseAuthException(code: 'internal-error', message: 'Failed to retrieve Firebase ID token');
+      }
 
-      // 2. Exchange with NestJS Backend
-      // Fallback url for emulator/local dev
+      // Exchange trusted Firebase ID token for Agrovia JWT session
       final dio = Dio();
-      final response = await dio.post('http://10.0.2.2:3000/auth/login', data: {
-        'idToken': idToken,
-      });
+
+      // Update with correct production/env base URL
+      const baseUrl = String.fromEnvironment('API_URL', defaultValue: 'http://10.0.2.2:3000');
+
+      final response = await dio.post(
+        '$baseUrl/auth/login',
+        data: { 'idToken': idToken },
+        options: Options(
+          headers: {'Authorization': 'Bearer $idToken'},
+          validateStatus: (status) => status! < 500, // Handle 401/403 seamlessly
+        )
+      );
 
       if (response.statusCode == 200 && response.data != null) {
         final accessToken = response.data['accessToken'];
-
-        // 3. Save secure token
         const storage = FlutterSecureStorage();
         await storage.write(key: 'jwt_token', value: accessToken);
 
-        // 4. Navigate to Home
+        // Clear transaction state securely
+        _verificationId = null;
+        _resendToken = null;
+
+        _setState(LoginState.authenticated);
+
         if (mounted) {
           context.go('/home');
         }
+      } else if (response.statusCode == 401 || response.statusCode == 403) {
+        throw FirebaseAuthException(code: 'unauthorized', message: 'Server rejected authentication.');
+      } else {
+        throw FirebaseAuthException(code: 'server-error', message: 'Unknown server error.');
       }
+    } on FirebaseAuthException catch (e) {
+      _setState(LoginState.error, error: _mapFirebaseError(e));
+      // Sign out from Firebase if backend negotiation failed
+      await FirebaseAuth.instance.signOut();
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMsg = 'Backend login failed: $e';
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
-  // --- MOCK FLOW FOR DEV WITHOUT FIREBASE CREDENTIALS --- //
-  Future<void> _mockBypass() async {
-    setState(() => _isLoading = true);
-    try {
-      final phone = _phoneController.text.trim().isEmpty ? '9999999999' : _phoneController.text.trim();
-      final mockIdToken = 'mock.devuser123.+91$phone'; // Matches what AuthService expects
-
-      final dio = Dio();
-      final response = await dio.post('http://10.0.2.2:3000/auth/login', data: {
-        'idToken': mockIdToken,
-      });
-
-      if (response.statusCode == 200) {
-        final accessToken = response.data['accessToken'];
-        const storage = FlutterSecureStorage();
-        await storage.write(key: 'jwt_token', value: accessToken);
-        if (mounted) context.go('/home');
-      }
-    } catch (e) {
-      setState(() => _errorMsg = 'Mock bypass failed: $e');
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      _setState(LoginState.error, error: 'Backend login transaction failed.');
+      await FirebaseAuth.instance.signOut();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final bool isBusy = _loginState == LoginState.sendingOtp || _loginState == LoginState.verifyingOtp;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -173,7 +219,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
               const Icon(Icons.agriculture_rounded, size: 80, color: AgroviaColors.primary),
               const SizedBox(height: 32),
 
-              if (_errorMsg != null) ...[
+              if (_loginState == LoginState.error && _errorMsg != null) ...[
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(color: Colors.red.shade50, borderRadius: BorderRadius.circular(8)),
@@ -182,12 +228,13 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 const SizedBox(height: 16),
               ],
 
-              if (!_codeSent) ...[
+              if (_loginState == LoginState.idle || _loginState == LoginState.sendingOtp || (_loginState == LoginState.error && _verificationId == null)) ...[
                 const Text('Enter Phone Number', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
+                  enabled: !isBusy,
                   decoration: const InputDecoration(
                     prefixText: '+91 ',
                     border: OutlineInputBorder(),
@@ -196,47 +243,55 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _verifyPhone,
+                  onPressed: isBusy ? null : () => _verifyPhone(isResend: false),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AgroviaColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: _isLoading
+                  child: isBusy
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                     : const Text('Send OTP', style: TextStyle(fontSize: 16, color: Colors.white)),
                 ),
-              ] else ...[
+              ] else if (_loginState == LoginState.otpSent || _loginState == LoginState.verifyingOtp || (_loginState == LoginState.error && _verificationId != null)) ...[
                 const Text('Enter OTP', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _otpController,
                   keyboardType: TextInputType.number,
+                  enabled: !isBusy,
+                  maxLength: 6,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: '6-digit code',
+                    counterText: '',
                   ),
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _verifyOtp,
+                  onPressed: isBusy ? null : _verifyOtp,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AgroviaColors.primary,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: _isLoading
+                  child: isBusy
                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                     : const Text('Verify & Login', style: TextStyle(fontSize: 16, color: Colors.white)),
                 ),
-              ],
-
-              const SizedBox(height: 32),
-              OutlinedButton(
-                onPressed: _isLoading ? null : _mockBypass,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: isBusy ? null : () => _verifyPhone(isResend: true),
+                  child: const Text('Resend OTP'),
                 ),
-                child: const Text('Dev Bypass (Mock Token)'),
-              ),
+                TextButton(
+                  onPressed: isBusy ? null : () {
+                    _verificationId = null;
+                    _resendToken = null;
+                    _otpController.clear();
+                    _setState(LoginState.idle);
+                  },
+                  child: const Text('Change Phone Number'),
+                ),
+              ],
             ],
           ),
         ),
