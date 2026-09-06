@@ -32,6 +32,21 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   String? _errorMsg;
 
   @override
+  void initState() {
+    super.initState();
+    _checkToken();
+  }
+
+  Future<void> _checkToken() async {
+    const storage = FlutterSecureStorage();
+    final token = await storage.read(key: 'jwt_token');
+    if (token != null && mounted) {
+      context.go('/home');
+    }
+  }
+
+
+  @override
   void dispose() {
     _phoneController.dispose();
     _otpController.dispose();

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:go_router/go_router.dart';
 import '../../widgets/glass_container.dart';
 import '../../theme/agrovia_theme.dart';
 
@@ -19,7 +22,15 @@ class HomeScreen extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.account_circle_outlined),
-            onPressed: () {},
+            onPressed: () async {
+              // added logout logic directly to this button for testing
+              await FirebaseAuth.instance.signOut();
+              const storage = FlutterSecureStorage();
+              await storage.delete(key: 'jwt_token');
+              if (context.mounted) {
+                context.go('/login');
+              }
+            },
           ),
         ],
       ),
