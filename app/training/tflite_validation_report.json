@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "total_validated_samples": 300,
+  "parity_with_pytorch": 1.0,
+  "max_prob_diff": 4.589557647705078e-06,
+  "avg_latency_ms": 8.570645333275024,
+  "tflite_file_size_mb": 8.592281341552734,
+  "input_shape": [
+    1,
+    224,
+    224,
+    3
+  ],
+  "input_dtype": "<class 'numpy.float32'>",
+  "num_classes": 29
+}
