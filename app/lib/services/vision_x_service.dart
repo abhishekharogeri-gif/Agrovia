@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
@@ -18,6 +19,7 @@ class VisionXService {
 
   Interpreter? _interpreter;
   List<String> _labels = [];
+  Map<String, dynamic> _advisory = {};
 
   Future<void> initModel() async {
     if (_isModelLoaded) return;
@@ -29,6 +31,10 @@ class VisionXService {
       // Load labels
       final labelData = await rootBundle.loadString('assets/models/labels.txt');
       _labels = labelData.split('\n').where((line) => line.trim().isNotEmpty).toList();
+
+      // Load advisory database
+      final advisoryData = await rootBundle.loadString('assets/data/agrovia_advisory.json');
+      _advisory = jsonDecode(advisoryData) as Map<String, dynamic>;
 
       _isModelLoaded = true;
       debugPrint('VisionXService: TFLite model loaded. Classes: ${_labels.length}');
@@ -100,8 +106,9 @@ class VisionXService {
       // Input shape: [1, 224, 224, 3] -> Flat buffer length 150528
       final inputBufferShape = [1, 224, 224, 3];
 
-      // Output shape: [1, 29]
-      final outputBuffer = List<double>.filled(1 * 29, 0).reshape([1, 29]);
+      // Output shape: [1, N] where N = loaded label count (37)
+      final classCount = _labels.isNotEmpty ? _labels.length : 37;
+      final outputBuffer = List<double>.filled(1 * classCount, 0).reshape([1, classCount]);
 
       // Run inference
       _interpreter!.run(inputBuffer.reshape(inputBufferShape), outputBuffer);
@@ -132,19 +139,31 @@ class VisionXService {
   }
 
   DiagnosisResult _generateResult(String imagePath, String label, double confidence) {
-    // Parse "Crop - Disease" format
-    final parts = label.split('-');
-    String cropName = parts[0].trim();
-    String diseaseName = parts.length > 1 ? parts[1].trim() : 'Unknown';
+    // Parse "Crop___Disease" format (PlantVillage labels)
+    final parts = label.split('___');
+    String cropName = parts[0].trim().replaceAll('_', ' ');
+    String diseaseName = parts.length > 1
+        ? parts.sublist(1).join(' ').replaceAll('_', ' ').trim()
+        : 'Unknown';
 
     final isHealthy = diseaseName.toLowerCase() == 'healthy';
+
+    // Advisory lookup — fail-safe, never crash if key missing
+    final Map<String, dynamic>? advice = _advisory[label] as Map<String, dynamic>?;
+    if (advice != null) {
+      cropName = (advice['crop'] as String?) ?? cropName;
+      diseaseName = (advice['condition'] as String?) ?? diseaseName;
+    }
 
     // Customize metrics based on health
     final healthScore = isHealthy ? (95 + math.Random().nextDouble() * 5) : (10 + math.Random().nextDouble() * 50);
     final affectedAreaPct = isHealthy ? 0.0 : (20 + math.Random().nextDouble() * 30);
 
     String severity = 'None';
-    if (!isHealthy) {
+    if (advice?['severity'] is String) {
+      final raw = (advice!['severity'] as String).toLowerCase();
+      severity = raw.isEmpty ? 'None' : '${raw[0].toUpperCase()}${raw.substring(1)}';
+    } else if (!isHealthy) {
       if (healthScore > 50) {
         severity = 'Low';
       } else if (healthScore > 30) {
@@ -170,33 +189,25 @@ class VisionXService {
             RadarMetric(label: 'Recovery Potential', value: 0.8),
           ];
 
-    final organicTreatment = isHealthy
-        ? TreatmentPlan(
-            title: 'Maintain Current Regimen',
-            steps: ['Continue regular watering.', 'Maintain proper spacing for aeration.', 'Monitor for early signs of pests.'],
-            dosage: 'N/A',
-            safetyWarning: 'No action required.',
-          )
-        : TreatmentPlan(
-            title: 'Organic Spray & Pruning',
-            steps: ['Prune and dispose of infected leaves.', 'Apply Neem oil or copper fungicide.', 'Ensure good air circulation.'],
-            dosage: 'As per organic label',
-            safetyWarning: 'Wash hands after application.',
-          );
+    final organicTreatment = _treatmentFromAdvice(
+      advice,
+      key: 'organic',
+      fallbackTitle: isHealthy ? 'Maintain Current Regimen' : 'Organic Spray & Pruning',
+      fallbackSteps: isHealthy
+          ? ['Continue regular watering.', 'Maintain proper spacing for aeration.', 'Monitor for early signs of pests.']
+          : ['Prune and dispose of infected leaves.', 'Apply Neem oil or copper fungicide.', 'Ensure good air circulation.'],
+      fallbackWarning: isHealthy ? 'No action required.' : 'Wash hands after application.',
+    );
 
-    final chemicalTreatment = isHealthy
-        ? TreatmentPlan(
-            title: 'No Chemical Treatment Required',
-            steps: ['Avoid unnecessary chemical spraying.', 'Use preventative fungicides only during high humidity.'],
-            dosage: 'N/A',
-            safetyWarning: 'N/A',
-          )
-        : TreatmentPlan(
-            title: 'Targeted Fungicide/Bactericide',
-            steps: ['Apply appropriate systemic chemical agent.', 'Rotate chemical classes to prevent resistance.', 'Follow pre-harvest intervals.'],
-            dosage: 'Follow manufacturer recommended dose',
-            safetyWarning: 'Use full PPE (mask, gloves, goggles).',
-          );
+    final chemicalTreatment = _treatmentFromAdvice(
+      advice,
+      key: 'chemical',
+      fallbackTitle: isHealthy ? 'No Chemical Treatment Required' : 'Targeted Fungicide/Bactericide',
+      fallbackSteps: isHealthy
+          ? ['Avoid unnecessary chemical spraying.', 'Use preventative fungicides only during high humidity.']
+          : ['Apply appropriate systemic chemical agent.', 'Rotate chemical classes to prevent resistance.', 'Follow pre-harvest intervals.'],
+      fallbackWarning: isHealthy ? 'N/A' : 'Use full PPE (mask, gloves, goggles).',
+    );
 
     return DiagnosisResult(
       id: 'diag_${DateTime.now().millisecondsSinceEpoch}',
@@ -211,6 +222,32 @@ class VisionXService {
       radarMetrics: radarMetrics,
       organicTreatment: organicTreatment,
       chemicalTreatment: chemicalTreatment,
+    );
+  }
+
+  TreatmentPlan _treatmentFromAdvice(
+    Map<String, dynamic>? advice, {
+    required String key,
+    required String fallbackTitle,
+    required List<String> fallbackSteps,
+    required String fallbackWarning,
+  }) {
+    if (advice == null) {
+      return TreatmentPlan(
+        title: fallbackTitle,
+        steps: fallbackSteps,
+        dosage: 'N/A',
+        safetyWarning: fallbackWarning,
+      );
+    }
+    final steps = (advice[key] as List?)?.map((e) => e.toString()).toList() ?? fallbackSteps;
+    final cultural = (advice['cultural'] as List?)?.map((e) => e.toString()).toList() ?? [];
+    final precautions = (advice['precautions'] as List?)?.map((e) => e.toString()).toList() ?? [];
+    return TreatmentPlan(
+      title: fallbackTitle,
+      steps: [...steps, ...cultural],
+      dosage: 'N/A',
+      safetyWarning: precautions.isNotEmpty ? precautions.join(' ') : fallbackWarning,
     );
   }
 }
