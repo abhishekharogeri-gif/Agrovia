@@ -92,10 +92,13 @@ class AgroviaBottomNavBar extends StatelessWidget {
               width: 2,
             ),
           ),
-          child: const Icon(
-            Icons.camera_alt_rounded,
-            color: Colors.white,
-            size: 26,
+          child: ClipOval(
+            child: Image.asset(
+              'assets/icons/vision_x.png',
+              width: 30,
+              height: 30,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
       ),

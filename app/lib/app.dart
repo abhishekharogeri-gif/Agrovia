@@ -3,7 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'theme/agrovia_theme.dart';
 import 'widgets/bottom_nav_bar.dart';
 
-import 'screens/auth/phone_login_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/auth/register_screen.dart';
+import 'screens/auth/forgot_password_screen.dart';
+import 'screens/onboarding/personal_details_screen.dart';
+import 'screens/onboarding/permissions_onboarding_screen.dart';
+
 import 'screens/home/home_screen.dart';
 import 'screens/connect/connect_screen.dart';
 import 'screens/vision_x/vision_x_screen.dart';
@@ -22,7 +27,27 @@ final router = GoRouter(
     GoRoute(
       path: '/login',
       parentNavigatorKey: _rootNavigatorKey,
-      pageBuilder: (context, state) => const NoTransitionPage(child: PhoneLoginScreen()),
+      pageBuilder: (context, state) => const NoTransitionPage(child: LoginScreen()),
+    ),
+    GoRoute(
+      path: '/register',
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) => const NoTransitionPage(child: RegisterScreen()),
+    ),
+    GoRoute(
+      path: '/forgot-password',
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) => const NoTransitionPage(child: ForgotPasswordScreen()),
+    ),
+    GoRoute(
+      path: '/onboarding/details',
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) => const NoTransitionPage(child: PersonalDetailsScreen()),
+    ),
+    GoRoute(
+      path: '/onboarding/permissions',
+      parentNavigatorKey: _rootNavigatorKey,
+      pageBuilder: (context, state) => const NoTransitionPage(child: PermissionsOnboardingScreen()),
     ),
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
@@ -86,10 +111,34 @@ class _MainShellState extends State<MainShell> {
       extendBody: true,
       body: widget.child,
       floatingActionButton: FloatingActionButton(
-        mini: true,
-        backgroundColor: AgroviaColors.primaryDark,
+        mini: false, // Changed to default size for the character icon
+        backgroundColor: Colors.transparent, // Background transparent
+        elevation: 0,
+        shape: const CircleBorder(),
         onPressed: () => SaanviBottomSheet.show(context),
-        child: const Icon(Icons.mic, color: Colors.white),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AgroviaColors.primaryLight, AgroviaColors.primaryDark],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AgroviaColors.primary.withValues(alpha: 0.4),
+                blurRadius: 12,
+                spreadRadius: 2,
+              )
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset('assets/icons/saanvi.png', fit: BoxFit.contain),
+          ),
+        ),
       ),
       bottomNavigationBar: AgroviaBottomNavBar(
         currentIndex: currentIndex,
@@ -127,9 +176,9 @@ class AgroviaApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Agrovia',
       debugShowCheckedModeBanner: false,
-      theme: AgroviaTheme.lightTheme,
+      theme: AgroviaTheme.darkTheme, // Force dark theme for glassmorphism
       darkTheme: AgroviaTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark, // Force dark mode
       routerConfig: router,
     );
   }

@@ -12,6 +12,16 @@ class DiagnosisResult {
   final DateTime timestamp;
   final String? imagePath;
 
+  // New advisory fields
+  final List<String> symptoms;
+  final List<String> cultural;
+  final List<String> organic;
+  final List<String> chemical;
+  final List<String> precautions;
+  final String? harvestWindow;
+  final List<String>? harvestIndicators;
+  final bool isUnregistered;
+
   DiagnosisResult({
     required this.id,
     required this.cropName,
@@ -25,6 +35,14 @@ class DiagnosisResult {
     required this.chemicalTreatment,
     required this.timestamp,
     this.imagePath,
+    this.symptoms = const [],
+    this.cultural = const [],
+    this.organic = const [],
+    this.chemical = const [],
+    this.precautions = const [],
+    this.harvestWindow,
+    this.harvestIndicators,
+    this.isUnregistered = false,
   });
 }
 

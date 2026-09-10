@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import '../../theme/agrovia_theme.dart';
@@ -146,7 +147,7 @@ class _VisionXScreenState extends State<VisionXScreen> with WidgetsBindingObserv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AgroviaColors.backgroundDark,
       body: Stack(
         children: [
           // Camera Preview or Simulated Viewfinder
@@ -163,13 +164,34 @@ class _VisionXScreenState extends State<VisionXScreen> with WidgetsBindingObserv
             )
           else
             Container(
-              color: Colors.grey.shade900,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF0A1129), Color(0xFF020617)],
+                ),
+              ),
               width: double.infinity,
               height: double.infinity,
-              child: const Center(
-                child: Icon(Icons.qr_code_scanner_rounded, size: 250, color: Colors.white24),
+              child: Center(
+                child: Image.asset('assets/icons/vision_x.png', width: 200, height: 200, fit: BoxFit.contain, color: Colors.white24),
               ),
             ),
+
+          // Subtle dark vignette overlay
+          Positioned.fill(
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
+                    center: Alignment.center,
+                    radius: 0.75,
+                    colors: [Colors.transparent, Colors.black54],
+                  ),
+                ),
+              ),
+            ),
+          ),
 
           // Viewfinder Target Overlay
           if (!_isProcessing)
@@ -184,6 +206,17 @@ class _VisionXScreenState extends State<VisionXScreen> with WidgetsBindingObserv
                   ),
                   borderRadius: BorderRadius.circular(24),
                 ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AgroviaColors.glassSurfaceDark.withValues(alpha: 0.3),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
 
@@ -192,21 +225,24 @@ class _VisionXScreenState extends State<VisionXScreen> with WidgetsBindingObserv
             Container(
               color: Colors.black54,
               child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    CircularProgressIndicator(color: AgroviaColors.primary),
-                    SizedBox(height: 16),
-                    Text(
-                      'Analyzing leaf sample...',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      'Running on-device MobileNetV2 TFLite (29 classes)',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
-                    ),
-                  ],
+                child: GlassContainer(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      CircularProgressIndicator(color: AgroviaColors.primary),
+                      SizedBox(height: 16),
+                      Text(
+                        'Analyzing leaf sample...',
+                        style: TextStyle(color: AgroviaColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      SizedBox(height: 6),
+                      Text(
+                        'Running on-device MobileNetV3 TFLite (37 classes)',
+                        style: TextStyle(color: AgroviaColors.textSecondary, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -222,14 +258,16 @@ class _VisionXScreenState extends State<VisionXScreen> with WidgetsBindingObserv
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Image.asset('assets/icons/vision_x.png', width: 28, height: 28, fit: BoxFit.contain),
+                    const SizedBox(width: 10),
                     const Text(
                       'Vision X Diagnostics',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AgroviaColors.textPrimary),
                     ),
                     IconButton(
                       icon: Icon(
                         _isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                        color: _isFlashOn ? Colors.amber : Colors.white,
+                        color: _isFlashOn ? Colors.amber : AgroviaColors.textPrimary,
                       ),
                       onPressed: _toggleFlash,
                     ),
@@ -246,27 +284,27 @@ class _VisionXScreenState extends State<VisionXScreen> with WidgetsBindingObserv
               right: 16,
               child: GlassContainer(
                 blur: 24,
-                surfaceColor: Colors.white.withValues(alpha: 0.1),
-                borderColor: Colors.white.withValues(alpha: 0.3),
+                surfaceColor: AgroviaColors.glassSurfaceDark.withValues(alpha: 0.3),
+                borderColor: AgroviaColors.glassBorderDark,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
+                    Text(
                       'Align diseased plant leaf inside frame',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13),
+                      style: TextStyle(color: AgroviaColors.textSecondary, fontWeight: FontWeight.w600, fontSize: 13),
                     ),
                     const SizedBox(height: 14),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.info_outline_rounded, color: Colors.white),
+                          icon: const Icon(Icons.info_outline_rounded, color: AgroviaColors.textPrimary),
                           onPressed: () {
                             showModalBottomSheet(
                               context: context,
-                              backgroundColor: Colors.grey.shade900,
+                              backgroundColor: AgroviaColors.backgroundDark,
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                               ),
                               builder: (_) => Padding(
                                 padding: const EdgeInsets.all(20.0),
@@ -274,13 +312,13 @@ class _VisionXScreenState extends State<VisionXScreen> with WidgetsBindingObserv
                                   mainAxisSize: MainAxisSize.min,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: const [
-                                    Text('Best Diagnosis Tips', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                                    Text('Best Diagnosis Tips', style: TextStyle(color: AgroviaColors.textPrimary, fontWeight: FontWeight.bold, fontSize: 16)),
                                     SizedBox(height: 10),
-                                    Text('• Keep the camera steady and 15-20cm away from the leaf.', style: TextStyle(color: Colors.white70)),
+                                    Text('• Keep the camera steady and 15-20cm away from the leaf.', style: TextStyle(color: AgroviaColors.textSecondary)),
                                     SizedBox(height: 6),
-                                    Text('• Ensure adequate natural or flash lighting.', style: TextStyle(color: Colors.white70)),
+                                    Text('• Ensure adequate natural or flash lighting.', style: TextStyle(color: AgroviaColors.textSecondary)),
                                     SizedBox(height: 6),
-                                    Text('• Avoid multiple overlapping leaves or noisy backgrounds.', style: TextStyle(color: Colors.white70)),
+                                    Text('• Avoid multiple overlapping leaves or noisy backgrounds.', style: TextStyle(color: AgroviaColors.textSecondary)),
                                   ],
                                 ),
                               ),
@@ -294,16 +332,20 @@ class _VisionXScreenState extends State<VisionXScreen> with WidgetsBindingObserv
                             height: 68,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 3.5),
-                              color: AgroviaColors.primaryDark.withValues(alpha: 0.85),
+                              border: Border.all(color: AgroviaColors.textPrimary, width: 3.5),
+                              gradient: const LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [AgroviaColors.primary, AgroviaColors.primaryDark],
+                              ),
                             ),
-                            child: const Center(
-                              child: Icon(Icons.camera_alt_rounded, color: Colors.white, size: 28),
+                            child: Center(
+                              child: Image.asset('assets/icons/vision_x.png', width: 28, height: 28, fit: BoxFit.contain),
                             ),
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.cameraswitch_rounded, color: Colors.white),
+                          icon: const Icon(Icons.cameraswitch_rounded, color: AgroviaColors.textPrimary),
                           onPressed: _switchCamera,
                         ),
                       ],

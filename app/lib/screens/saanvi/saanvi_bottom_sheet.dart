@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import '../../providers/language_provider.dart';
 import '../../services/api_service.dart';
 import '../../theme/agrovia_theme.dart';
 import '../../widgets/glass_container.dart';
@@ -17,7 +19,7 @@ class MessageItem {
   });
 }
 
-class SaanviBottomSheet extends StatefulWidget {
+class SaanviBottomSheet extends ConsumerStatefulWidget {
   const SaanviBottomSheet({super.key});
 
   static Future<void> show(BuildContext context) {
@@ -30,27 +32,25 @@ class SaanviBottomSheet extends StatefulWidget {
   }
 
   @override
-  State<SaanviBottomSheet> createState() => _SaanviBottomSheetState();
+  ConsumerState<SaanviBottomSheet> createState() => _SaanviBottomSheetState();
 }
 
-class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTickerProviderStateMixin {
+class _SaanviBottomSheetState extends ConsumerState<SaanviBottomSheet> with SingleTickerProviderStateMixin {
   late AnimationController _waveController;
   final TextEditingController _textController = TextEditingController();
-  bool _isListening = false;
   bool _isLoading = false;
-  String _selectedLanguage = 'hi';
+  bool _isListening = false;
   final stt.SpeechToText _stt = stt.SpeechToText();
   bool _sttAvailable = false;
 
   final List<MessageItem> _chatHistory = [
     MessageItem(
-      text: 'नमस्ते! मैं सान्वी हूँ, आपकी डिजिटल कृषि सखी। आज मैं आपकी कैसे मदद कर सकती हूँ?',
+      text: 'Hello! I am Saanvi, your digital agricultural companion. How can I help you today?',
       isUser: false,
       suggestedActions: [
-        {'label': 'मंडी भाव (Mandi)', 'query': 'आज इंदौर में सोयाबीन का भाव क्या है?'},
-        {'label': 'मौसम अपडेट (Weather)', 'query': 'अगले दो दिन बारिश होगी क्या?'},
-        {'label': 'रोग निदान (Disease)', 'query': 'पत्तियों पर पीले धब्बे आ रहे हैं'},
-        {'label': 'सरकारी योजनाएं (Schemes)', 'query': 'पीएम किसान योजना की स्थिति'},
+        {'label': 'Mandi Prices', 'query': 'What is the price of Soybean in Indore today?'},
+        {'label': 'Weather', 'query': 'Will it rain in the next two days?'},
+        {'label': 'Disease Diagnosis', 'query': 'There are yellow spots appearing on leaves'},
       ],
     ),
   ];
@@ -64,12 +64,29 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
 
   Future<void> _initSpeech() async {
     try {
-      _sttAvailable = await _stt.initialize(
-        onError: (_) {},
-        onStatus: (_) {},
-      );
+      _sttAvailable = await _stt.initialize(onError: (_) {}, onStatus: (_) {});
     } catch (_) {
       _sttAvailable = false;
+    }
+  }
+
+  void _toggleListening() {
+    if (_isLoading) return;
+    if (_isListening) {
+      _stt.stop();
+      setState(() => _isListening = false);
+      return;
+    }
+    setState(() => _isListening = true);
+    if (_sttAvailable) {
+      _stt.listen(
+        onResult: (result) {
+          if (result.finalResult) {
+            setState(() => _isListening = false);
+            if (result.recognizedWords.trim().isNotEmpty) _sendQuery(result.recognizedWords);
+          }
+        },
+      );
     }
   }
 
@@ -92,23 +109,16 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
 
     try {
       final dio = await ApiService.getAuthenticatedDio();
+      final currentLang = ref.read(languageProvider);
       final response = await dio.post(
         '/saanvi/query',
-        data: {
-          'query': query,
-          'language': _selectedLanguage,
-          'context': {
-            'location': 'Indore, MP',
-            'crop': 'Soybean',
-          },
-        },
+        data: {'query': query, 'language': currentLang},
       );
 
       if (response.statusCode == 200 && response.data != null) {
         final data = response.data;
-        final reply = data['replyText'] ?? 'उत्तर प्राप्त नहीं हुआ।';
+        final reply = data['replyText'] ?? 'मैं समझ नहीं पाई, कृपया फिर से बोलें।';
         final List<dynamic>? actions = data['suggestedActions'];
-
         setState(() {
           _chatHistory.add(MessageItem(
             text: reply,
@@ -116,53 +126,32 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
             suggestedActions: actions?.map((a) => Map<String, dynamic>.from(a)).toList(),
           ));
         });
-      } else {
-        _handleFallbackResponse(query);
       }
     } catch (e) {
-      _handleFallbackResponse(query);
-    } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          _chatHistory.add(MessageItem(
+            text: 'Sorry, unable to connect to server. Please check your internet connection and try again.',
+            isUser: false,
+          ));
         });
       }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _handleFallbackResponse(String query) {
-    // Intelligent offline local fallback when backend is unreachable
-    final q = query.toLowerCase();
-    String reply = 'नमस्ते! सर्वर से कनेक्ट करने में समस्या हुई, लेकिन मैं आपकी सहायता के लिए यहाँ हूँ।';
-    List<Map<String, dynamic>> actions = [];
-
-    if (q.contains('भाव') || q.contains('price') || q.contains('mandi')) {
-      reply = 'आज इंदौर मंडी में सोयाबीन ₹4,850/क्विंटल और गेहूं ₹2,300/क्विंटल पर व्यापार कर रहा है।';
-      actions = [{'label': 'View Market', 'actionType': 'NAVIGATE_TAB', 'payload': {'tab': 'market'}}];
-    } else if (q.contains('रोग') || q.contains('धब्बे') || q.contains('disease') || q.contains('leaf')) {
-      reply = 'पीले धब्बे फंगल संक्रमण (सर्कोस्पोरा) के लक्षण हो सकते हैं। Vision X से पत्ती का स्कैन करें।';
-      actions = [{'label': 'Open Vision X', 'actionType': 'NAVIGATE_TAB', 'payload': {'tab': 'vision'}}];
-    } else if (q.contains('मौसम') || q.contains('बारिश') || q.contains('weather') || q.contains('rain')) {
-      reply = 'अगले 48 घंटों में हल्की बारिश और 85% आर्द्रता की संभावना है। छिड़काव स्थगित रखें।';
-    } else if (q.contains('योजना') || q.contains('scheme') || q.contains('kisan')) {
-      reply = 'पीएम-किसान 17वीं किस्त व कुसुम सोलर पंप 60% सब्सिडी आवेदन सक्रिय हैं। योजना हब देखें।';
-      actions = [{'label': 'Open Yojana Hub', 'actionType': 'NAVIGATE_TAB', 'payload': {'tab': 'yojana'}}];
-    }
-
-    setState(() {
-      _chatHistory.add(MessageItem(
-        text: reply,
-        isUser: false,
-        suggestedActions: actions.isNotEmpty ? actions : null,
-      ));
-    });
   }
 
   void _handleAction(Map<String, dynamic> action) {
-    if (action.containsKey('query')) {
-      _sendQuery(action['query']);
-    } else if (action['actionType'] == 'NAVIGATE_TAB') {
-      final tab = action['payload']?['tab'];
+    if (action['query'] != null) {
+      _sendQuery(action['query'] as String);
+      return;
+    }
+
+    final actionType = action['actionType'] as String?;
+    final payload = action['payload'];
+
+    if (actionType == 'NAVIGATE_TAB') {
+      final tab = payload is Map ? payload['tab'] : null;
       Navigator.pop(context);
       if (tab == 'market') {
         context.go('/market');
@@ -170,139 +159,182 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
         context.go('/vision-x');
       } else if (tab == 'yojana') {
         context.go('/yojana-hub');
+      } else if (tab == 'connect') {
+        context.go('/connect');
+      } else {
+        context.go('/home');
       }
-    }
-  }
-
-  void _toggleListening() {
-    if (_isLoading) return;
-
-    if (_isListening) {
-      _stt.stop();
-      setState(() => _isListening = false);
       return;
     }
 
-    setState(() => _isListening = true);
-
-    if (_sttAvailable) {
-      _stt.listen(
-        onResult: (result) {
-          final text = result.recognizedWords;
-          if (text.isNotEmpty) {
-            _textController.text = text;
-            _textController.selection = TextSelection.fromPosition(
-              TextPosition(offset: text.length),
-            );
-          }
-          if (result.finalResult) {
-            setState(() => _isListening = false);
-            if (text.trim().isNotEmpty) _sendQuery(text);
-          }
-        },
-        listenOptions: stt.SpeechListenOptions(
-          partialResults: true,
-          localeId: _selectedLanguage == 'hi' ? 'hi-IN' : 'en-IN',
-        ),
-      );
-    } else {
-      // ponytail: graceful fallback when STT init fails (emulator without service)
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted && _isListening) {
-          setState(() => _isListening = false);
-          _sendQuery('सोयाबीन का आज क्या भाव है और कब बेचना चाहिए?');
-        }
-      });
+    if (action['label'] != null) {
+      _sendQuery(action['label'] as String);
     }
+  }
+
+  void _showLanguagePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.6,
+        decoration: const BoxDecoration(
+          color: AgroviaColors.backgroundDark,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(top: BorderSide(color: AgroviaColors.glassBorderDark, width: 1)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AgroviaColors.textSecondary.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.language_rounded, color: AgroviaColors.primary),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Select Language',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AgroviaColors.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: AgroviaColors.textSecondary),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AgroviaColors.glassBorderDark),
+            Expanded(
+              child: ListView.builder(
+                itemCount: kSupportedLanguages.length,
+                itemBuilder: (context, index) {
+                  final lang = kSupportedLanguages[index];
+                  final isSelected = ref.watch(languageProvider) == lang.code;
+                  return ListTile(
+                    title: Text(
+                      lang.name,
+                      style: TextStyle(
+                        color: isSelected ? AgroviaColors.primary : AgroviaColors.textPrimary,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      ),
+                    ),
+                    subtitle: Text(
+                      lang.nativeName,
+                      style: TextStyle(
+                        color: isSelected ? AgroviaColors.primary.withValues(alpha: 0.8) : AgroviaColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                    trailing: isSelected
+                        ? const Icon(Icons.check_circle_rounded, color: AgroviaColors.primary)
+                        : null,
+                    onTap: () {
+                      ref.read(languageProvider.notifier).setLanguage(lang.code);
+                      Navigator.pop(context);
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentLangCode = ref.watch(languageProvider);
+    final currentLang = kSupportedLanguages.firstWhere(
+      (l) => l.code == currentLangCode,
+      orElse: () => kSupportedLanguages.first,
+    );
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
-        color: AgroviaColors.backgroundLight,
+        color: AgroviaColors.backgroundDark,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border(top: BorderSide(color: AgroviaColors.glassBorderDark, width: 1)),
       ),
       child: Column(
         children: [
-          // Header & Drag Handle
+          const SizedBox(height: 12),
           Center(
-            child: Container(
-              width: 44,
-              height: 5,
-              decoration: BoxDecoration(
-                color: AgroviaColors.textSecondary.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(3),
-              ),
+            child: Container(width: 44, height: 5, decoration: BoxDecoration(color: AgroviaColors.textSecondary.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(3))),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: AgroviaColors.glassSurface, borderRadius: BorderRadius.circular(16)),
+                  child: Image.asset('assets/icons/saanvi.png', width: 40, height: 40),
+                ),
+                const SizedBox(width: 12),
+                const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Saanvi AI', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: AgroviaColors.textPrimary)),
+                    Text('Digital Agri-Assistant', style: TextStyle(fontSize: 12, color: AgroviaColors.textSecondary)),
+                  ],
+                ),
+                const Spacer(),
+                InkWell(
+                  onTap: _showLanguagePicker,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AgroviaColors.glassSurface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AgroviaColors.glassBorderDark),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.language_rounded, size: 16, color: AgroviaColors.primary),
+                        const SizedBox(width: 6),
+                        Text(
+                          currentLang.name,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AgroviaColors.textPrimary,
+                          ),
+                        ),
+                        const Icon(Icons.arrow_drop_down, size: 18, color: AgroviaColors.textSecondary),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const CircleAvatar(
-                    backgroundColor: AgroviaColors.primaryDark,
-                    radius: 18,
-                    child: Icon(Icons.psychology_rounded, color: Colors.white, size: 20),
-                  ),
-                  const SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text('Saanvi (सान्वी)', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                      Text('AI Digital Agronomist', style: TextStyle(fontSize: 11, color: AgroviaColors.textSecondary)),
-                    ],
-                  ),
-                ],
-              ),
-              DropdownButton<String>(
-                value: _selectedLanguage,
-                underline: const SizedBox(),
-                items: const [
-                  DropdownMenuItem(value: 'hi', child: Text('हिंदी (Hindi)')),
-                  DropdownMenuItem(value: 'en', child: Text('English')),
-                  DropdownMenuItem(value: 'mr', child: Text('मराठी (Marathi)')),
-                  DropdownMenuItem(value: 'te', child: Text('తెలుగు (Telugu)')),
-                ],
-                onChanged: (val) {
-                  if (val != null) setState(() => _selectedLanguage = val);
-                },
-              ),
-            ],
-          ),
-          const Divider(height: 20),
-
-          // Chat message list
           Expanded(
             child: ListView.separated(
+              padding: const EdgeInsets.all(16),
               itemCount: _chatHistory.length + (_isLoading ? 1 : 0),
-              separatorBuilder: (context, index) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
                 if (index == _chatHistory.length && _isLoading) {
-                  return const Align(
-                    alignment: Alignment.centerLeft,
-                    child: GlassContainer(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: AgroviaColors.primaryDark),
-                          ),
-                          SizedBox(width: 10),
-                          Text('सान्वी सोच रही है...', style: TextStyle(fontSize: 13, color: AgroviaColors.textSecondary)),
-                        ],
-                      ),
-                    ),
-                  );
+                  return const Align(alignment: Alignment.centerLeft, child: Text('Saanvi is thinking...', style: TextStyle(color: AgroviaColors.textSecondary)));
                 }
-
                 final msg = _chatHistory[index];
                 return Column(
                   crossAxisAlignment: msg.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -310,34 +342,27 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
                     Align(
                       alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
                       child: GlassContainer(
-                        blur: 10,
-                        borderRadius: 18,
-                        surfaceColor: msg.isUser ? AgroviaColors.primaryLight : AgroviaColors.glassSurface,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: Text(
-                          msg.text,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: msg.isUser ? AgroviaColors.primaryDark : AgroviaColors.textPrimary,
-                            fontWeight: msg.isUser ? FontWeight.w600 : FontWeight.normal,
-                          ),
-                        ),
+                        surfaceColor: msg.isUser ? AgroviaColors.primary.withValues(alpha: 0.2) : AgroviaColors.glassSurface,
+                        borderColor: msg.isUser ? AgroviaColors.primary : AgroviaColors.glassBorderDark,
+                        padding: const EdgeInsets.all(14),
+                        child: Text(msg.text, style: const TextStyle(color: AgroviaColors.textPrimary)),
                       ),
                     ),
-                    if (msg.suggestedActions != null && msg.suggestedActions!.isNotEmpty) ...[
-                      const SizedBox(height: 6),
+                    if (!msg.isUser && msg.suggestedActions != null && msg.suggestedActions!.isNotEmpty) ...[
+                      const SizedBox(height: 8),
                       Wrap(
                         spacing: 8,
                         runSpacing: 6,
-                        children: msg.suggestedActions!.map((action) {
+                        children: msg.suggestedActions!.map((act) {
                           return ActionChip(
                             label: Text(
-                              action['label'] ?? action['query'] ?? 'Option',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AgroviaColors.primaryDark),
+                              act['label'] ?? '',
+                              style: const TextStyle(fontSize: 12, color: AgroviaColors.primary, fontWeight: FontWeight.w600),
                             ),
-                            backgroundColor: AgroviaColors.primaryLight,
-                            side: BorderSide(color: AgroviaColors.primaryDark.withValues(alpha: 0.3)),
-                            onPressed: () => _handleAction(action),
+                            backgroundColor: AgroviaColors.glassSurface,
+                            side: BorderSide(color: AgroviaColors.glassBorderDark),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            onPressed: () => _handleAction(act),
                           );
                         }).toList(),
                       ),
@@ -345,63 +370,30 @@ class _SaanviBottomSheetState extends State<SaanviBottomSheet> with SingleTicker
                   ],
                 );
               },
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
             ),
           ),
-
-          const SizedBox(height: 8),
-
-          // Input controls
-          Row(
-            children: [
-              Expanded(
-                child: GlassContainer(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-                  borderRadius: 24,
-                  child: TextField(
-                    controller: _textController,
-                    onSubmitted: (val) => _sendQuery(val),
-                    decoration: const InputDecoration(
-                      hintText: 'Ask Saanvi anything about farming...',
-                      hintStyle: TextStyle(fontSize: 13, color: AgroviaColors.textSecondary),
-                      border: InputBorder.none,
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GlassContainer(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: TextField(
+                      controller: _textController,
+                      style: const TextStyle(color: AgroviaColors.textPrimary),
+                      decoration: const InputDecoration(border: InputBorder.none, hintText: 'Ask Saanvi...', hintStyle: TextStyle(color: AgroviaColors.textSecondary)),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              IconButton.filled(
-                onPressed: () => _sendQuery(_textController.text),
-                icon: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                style: IconButton.styleFrom(backgroundColor: AgroviaColors.primaryDark),
-              ),
-              const SizedBox(width: 4),
-              GestureDetector(
-                onTap: _toggleListening,
-                child: AnimatedBuilder(
-                  animation: _waveController,
-                  builder: (context, child) {
-                    final scale = _isListening ? 1.0 + (_waveController.value * 0.2) : 1.0;
-                    return Transform.scale(
-                      scale: scale,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: _isListening ? Colors.redAccent : AgroviaColors.accentGreen,
-                        ),
-                        child: Icon(
-                          _isListening ? Icons.graphic_eq_rounded : Icons.mic_rounded,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                IconButton.filled(onPressed: _toggleListening, icon: Icon(_isListening ? Icons.mic_off_rounded : Icons.mic_rounded), style: IconButton.styleFrom(backgroundColor: AgroviaColors.primary)),
+                const SizedBox(width: 8),
+                IconButton.filled(onPressed: () => _sendQuery(_textController.text), icon: const Icon(Icons.send), style: IconButton.styleFrom(backgroundColor: AgroviaColors.primary)),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
         ],
       ),
     );

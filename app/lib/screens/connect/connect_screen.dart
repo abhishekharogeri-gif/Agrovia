@@ -108,13 +108,14 @@ class _ConnectScreenState extends State<ConnectScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AgroviaColors.backgroundDark,
       appBar: AppBar(
-        title: const Text('Kisan Connect', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Kisan Connect', style: TextStyle(fontWeight: FontWeight.bold, color: AgroviaColors.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.qr_code_scanner_rounded),
+            icon: const Icon(Icons.qr_code_scanner_rounded, color: AgroviaColors.textPrimary),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('QR Connect: Coming soon — share your Farmer Card!'), duration: Duration(seconds: 2)),
@@ -122,12 +123,14 @@ class _ConnectScreenState extends State<ConnectScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(Icons.refresh_rounded, color: AgroviaColors.textPrimary),
             onPressed: _fetchFeed,
           ),
         ],
       ),
       body: RefreshIndicator(
+        color: AgroviaColors.primary,
+        backgroundColor: AgroviaColors.backgroundDark,
         onRefresh: _fetchFeed,
         child: ListView(
           padding: const EdgeInsets.all(16.0),
@@ -135,30 +138,31 @@ class _ConnectScreenState extends State<ConnectScreen> {
             // QR Exchange Banner
             GlassContainer(
               padding: const EdgeInsets.all(16.0),
-              surfaceColor: AgroviaColors.primaryLight,
+              surfaceColor: AgroviaColors.glassSurfaceDark,
+              borderColor: AgroviaColors.glassBorderDark,
               child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AgroviaColors.primaryDark.withValues(alpha: 0.15),
+                      color: AgroviaColors.primary.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Icon(Icons.qr_code_2_rounded, size: 32, color: AgroviaColors.primaryDark),
+                    child: const Icon(Icons.qr_code_2_rounded, size: 32, color: AgroviaColors.primary),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: const [
-                        Text('Share Your Farmer Card', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AgroviaColors.primaryDark)),
+                        Text('Share Your Farmer Card', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: AgroviaColors.primary)),
                         SizedBox(height: 4),
-                        Text('Connect with local farmers & verified experts instantly.', style: TextStyle(fontSize: 12, color: AgroviaColors.primaryDark)),
+                        Text('Connect with local farmers & verified experts instantly.', style: TextStyle(fontSize: 12, color: AgroviaColors.textSecondary)),
                       ],
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.share_rounded, color: AgroviaColors.primaryDark),
+                    icon: const Icon(Icons.share_rounded, color: AgroviaColors.primary),
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Share your Farmer Card with nearby farmers!'), duration: Duration(seconds: 2)),
@@ -170,36 +174,36 @@ class _ConnectScreenState extends State<ConnectScreen> {
             ),
             const SizedBox(height: 20),
 
-            const Text('Community Feed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text('Community Feed', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AgroviaColors.textPrimary)),
             const SizedBox(height: 8),
 
             if (_error != null)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Text(_error!, style: const TextStyle(color: Colors.orange, fontSize: 12, fontStyle: FontStyle.italic)),
+                child: Text(_error!, style: const TextStyle(color: AgroviaColors.accentWarning, fontSize: 12, fontStyle: FontStyle.italic)),
               ),
 
             if (_isLoading)
               const Padding(
                 padding: EdgeInsets.all(40.0),
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(child: CircularProgressIndicator(color: AgroviaColors.primary)),
               )
             else if (_feed.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(40.0),
-                child: Center(child: Text('No posts yet. Be the first to share!')),
+                child: Center(child: Text('No posts yet. Be the first to share!', style: TextStyle(color: AgroviaColors.textSecondary))),
               )
             else
               ..._feed.asMap().entries.map((e) => _buildPostCard(e.value, e.key)),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: 80),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AgroviaColors.primaryDark,
+        backgroundColor: AgroviaColors.primary,
         onPressed: () => _showCreatePost(),
-        child: const Icon(Icons.edit_rounded, color: Colors.white),
+        child: const Icon(Icons.edit_rounded, color: Colors.black87),
       ),
     );
   }
@@ -235,7 +239,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                         bottom: 0,
                         child: Container(
                           padding: const EdgeInsets.all(2),
-                          decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+                          decoration: const BoxDecoration(color: AgroviaColors.backgroundDark, shape: BoxShape.circle),
                           child: const Icon(Icons.verified_rounded, size: 12, color: AgroviaColors.accentGreen),
                         ),
                       ),
@@ -248,7 +252,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                     children: [
                       Row(
                         children: [
-                          Text(post['authorName'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(post['authorName'] ?? 'Unknown', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AgroviaColors.textPrimary)),
                           if (isExpert) ...[
                             const SizedBox(width: 4),
                             Container(
@@ -277,7 +281,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
             // Post content
             Text(
               post['content'] ?? '',
-              style: const TextStyle(fontSize: 14, height: 1.5),
+              style: const TextStyle(fontSize: 14, height: 1.5, color: AgroviaColors.textPrimary),
             ),
 
             const SizedBox(height: 12),
@@ -324,7 +328,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
                 ),
                 const Spacer(),
                 IconButton(
-                  icon: const Icon(Icons.share_outlined, size: 18),
+                  icon: const Icon(Icons.share_outlined, size: 18, color: AgroviaColors.textSecondary),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Share post with fellow farmers!'), duration: Duration(seconds: 2)),
@@ -350,22 +354,27 @@ class _ConnectScreenState extends State<ConnectScreen> {
       builder: (ctx) => Container(
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom, left: 16, right: 16, top: 16),
         decoration: const BoxDecoration(
-          color: Colors.white,
+          color: AgroviaColors.backgroundDark,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border(top: BorderSide(color: AgroviaColors.glassBorderDark)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: AgroviaColors.textSecondary.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
             const SizedBox(height: 16),
-            const Text('Share with the Community', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            const Text('Share with the Community', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AgroviaColors.textPrimary)),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
               maxLines: 4,
+              style: const TextStyle(color: AgroviaColors.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Share your farming tip, question, or update...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                hintStyle: const TextStyle(color: AgroviaColors.textSecondary),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AgroviaColors.glassBorderDark)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AgroviaColors.glassBorderDark)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: AgroviaColors.primary)),
               ),
             ),
             const SizedBox(height: 12),
@@ -392,8 +401,8 @@ class _ConnectScreenState extends State<ConnectScreen> {
                   Navigator.pop(ctx);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AgroviaColors.primaryDark,
-                  foregroundColor: Colors.white,
+                  backgroundColor: AgroviaColors.primary,
+                  foregroundColor: Colors.black87,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),

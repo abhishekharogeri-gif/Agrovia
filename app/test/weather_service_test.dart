@@ -7,45 +7,18 @@ void main() {
   setUp(() => svc = WeatherService());
 
   group('getSprayAdvisory', () {
-    test('returns "not ideal" when wind > 15 m/s', () {
-      final data = {
-        'main': {'temp': 25.0},
-        'wind': {'speed': 16.0},
-      };
-      expect(svc.getSprayAdvisory(data), 'Not ideal for spraying');
-    });
-
-    test('returns "not ideal" when temp > 35°C', () {
-      final data = {
-        'main': {'temp': 36.0},
-        'wind': {'speed': 5.0},
-      };
-      expect(svc.getSprayAdvisory(data), 'Not ideal for spraying');
-    });
-
-    test('returns "good" when wind < 5 m/s and temp < 30°C', () {
-      final data = {
-        'main': {'temp': 28.0},
-        'wind': {'speed': 4.0},
-      };
+    test('passes through backend sprayAdvisory string', () {
+      final data = {'sprayAdvisory': 'Good Spray Window: Now'};
       expect(svc.getSprayAdvisory(data), 'Good Spray Window: Now');
     });
 
-    test('returns "fair" for moderate conditions', () {
-      final data = {
-        'main': {'temp': 30.0},
-        'wind': {'speed': 8.0},
-      };
-      expect(svc.getSprayAdvisory(data), 'Fair Spray Window');
+    test('falls back when sprayAdvisory absent', () {
+      expect(svc.getSprayAdvisory({}), 'Check local conditions');
     });
 
-    test('returns fallback when wind data missing', () {
-      final data = {'main': {'temp': 25.0}};
-      expect(svc.getSprayAdvisory(data), 'Check local conditions');
-    });
-
-    test('returns fallback when main data missing', () {
-      final data = {'wind': {'speed': 8.0}};
+    test('falls back when sprayAdvisory is null', () {
+      // Dart maps allow explicit null values
+      final data = <String, dynamic>{'sprayAdvisory': null};
       expect(svc.getSprayAdvisory(data), 'Check local conditions');
     });
   });

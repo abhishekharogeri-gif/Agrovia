@@ -1,55 +1,35 @@
-import 'package:dio/dio.dart';
+import 'api_service.dart';
 
 class WeatherService {
-  static String get _primaryKey =>
-      const String.fromEnvironment('OPENWEATHER_API_KEY', defaultValue: '');
-
-  static String get _fallbackKey =>
-      const String.fromEnvironment('OPENWEATHER_API_KEY_FALLBACK', defaultValue: '');
-
-  static const String _baseUrl =
-      'https://api.openweathermap.org/data/2.5/weather';
-
-  final Dio _dio = Dio();
-
   Future<Map<String, dynamic>?> fetchWeather({String? city, double? lat, double? lon}) async {
-    final keys = [_primaryKey, _fallbackKey].where((k) => k.isNotEmpty).toList();
-    if (keys.isEmpty) return null;
+    try {
+      final dio = await ApiService.getAuthenticatedDio();
 
-    final params = {'units': 'metric'};
-    if (lat != null && lon != null) {
-      params['lat'] = lat.toString();
-      params['lon'] = lon.toString();
-    } else {
-      params['q'] = city ?? 'Indore,IN';
-    }
-
-    for (final key in keys) {
-      params['appid'] = key;
-      try {
-        final response = await _dio.get(_baseUrl, queryParameters: params);
-        return response.data as Map<String, dynamic>;
-      } catch (_) {
-        // try next key
+      final queryParams = <String, dynamic>{};
+      if (lat != null && lon != null) {
+        queryParams['lat'] = lat.toString();
+        queryParams['lon'] = lon.toString();
       }
+      if (city != null) {
+        queryParams['city'] = city;
+      }
+
+      final response = await dio.get('/weather', queryParameters: queryParams);
+      if (response.statusCode == 200) {
+        return response.data as Map<String, dynamic>;
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 
+  // Uses the string output provided directly by the backend!
   String getSprayAdvisory(Map<String, dynamic> weatherData) {
-    if (weatherData['wind'] == null || weatherData['main'] == null) {
-      return 'Check local conditions';
+    if (weatherData['sprayAdvisory'] != null) {
+      return weatherData['sprayAdvisory'] as String;
     }
-    final double windSpeed = (weatherData['wind']['speed'] as num).toDouble();
-    final double temp = (weatherData['main']['temp'] as num).toDouble();
-
-    if (windSpeed > 15 || temp > 35) {
-      return 'Not ideal for spraying';
-    } else if (windSpeed < 5 && temp < 30) {
-      return 'Good Spray Window: Now';
-    } else {
-      return 'Fair Spray Window';
-    }
+    return 'Check local conditions';
   }
 
   String getWeatherIcon(String? iconCode) {

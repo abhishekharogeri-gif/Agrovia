@@ -1,4 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export class SaanviQueryDto {
   query: string;
@@ -21,10 +23,44 @@ export interface SaanviResponse {
 @Injectable()
 export class SaanviService {
   private readonly logger = new Logger(SaanviService.name);
+  private readonly geminiModel: any;
+
+  constructor(private configService: ConfigService) {
+    const apiKey = this.configService.get<string>('GEMINI_API_KEY');
+    if (apiKey) {
+      const genAI = new GoogleGenerativeAI(apiKey);
+      this.geminiModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    }
+  }
 
   async processQuery(dto: SaanviQueryDto): Promise<SaanviResponse> {
     this.logger.log(`Saanvi query in [${dto.language}]: "${dto.query}"`);
+
+    // Attempt Gemini Flash if available
+    if (this.geminiModel) {
+      try {
+        const prompt = `Act as Saanvi, an agricultural assistant for Indian farmers. The user query is: "${dto.query}" in language: ${dto.language}. Keep response concise and helpful. Return advice.`;
+        // ponytail: 15s ceiling so intent fallback stays snappy if Gemini hangs
+        const result = await Promise.race([
+          this.geminiModel.generateContent(prompt),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Gemini timeout after 15s')), 15_000),
+          ),
+        ]);
+        const replyText = result.response.text();
+        return {
+          intent: 'GENERAL_ADVISORY',
+          replyText,
+          suggestedActions: [],
+          confidence: 0.95,
+        };
+      } catch (e) {
+        this.logger.error('Gemini error', e);
+      }
+    }
+
     const q = (dto.query || '').toLowerCase();
+    // ... rest of the original logic as fallback ...
 
     // Multilingual vernacular intent routing
     if (

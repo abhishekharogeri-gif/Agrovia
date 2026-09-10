@@ -66,5 +66,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Agrovia needs camera access to scan crops for disease detection.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Agrovia needs microphone access for Saanvi AI voice queries.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Agrovia uses your location for local weather and nearby mandi prices.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Agrovia needs photo library access to analyse crop images you select.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Agrovia may save diagnosis result images to your photo library.</string>
 </dict>
 </plist>

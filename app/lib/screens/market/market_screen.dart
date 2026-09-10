@@ -117,13 +117,14 @@ class _MarketScreenState extends State<MarketScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AgroviaColors.backgroundDark,
       appBar: AppBar(
-        title: const Text('Mandi Spot Rates', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Mandi Spot Rates', style: TextStyle(fontWeight: FontWeight.bold, color: AgroviaColors.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(Icons.refresh_rounded, color: AgroviaColors.textPrimary),
             onPressed: _fetchPrices,
             tooltip: 'Refresh Rates',
           ),
@@ -144,11 +145,14 @@ class _MarketScreenState extends State<MarketScreen> {
                     label: Text(label),
                     selected: isSelected,
                     onSelected: (val) => setState(() => _selectedFilter = label),
-                    backgroundColor: AgroviaColors.glassSurface,
-                    selectedColor: AgroviaColors.primaryLight,
-                    checkmarkColor: AgroviaColors.primaryDark,
+                    backgroundColor: AgroviaColors.glassSurfaceDark,
+                    selectedColor: AgroviaColors.primary.withValues(alpha: 0.25),
+                    checkmarkColor: AgroviaColors.primary,
+                    side: BorderSide(
+                      color: isSelected ? AgroviaColors.primary : AgroviaColors.glassBorderDark,
+                    ),
                     labelStyle: TextStyle(
-                      color: isSelected ? AgroviaColors.primaryDark : AgroviaColors.textPrimary,
+                      color: isSelected ? AgroviaColors.primary : AgroviaColors.textSecondary,
                       fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                   ),
@@ -162,12 +166,16 @@ class _MarketScreenState extends State<MarketScreen> {
           GlassContainer(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             borderRadius: 30,
+            surfaceColor: AgroviaColors.glassSurfaceDark,
+            borderColor: AgroviaColors.glassBorderDark,
             child: TextField(
+              style: const TextStyle(color: AgroviaColors.textPrimary),
               onChanged: (val) => setState(() => _searchQuery = val),
               decoration: const InputDecoration(
                 hintText: 'Search mandi, crop, or district...',
+                hintStyle: TextStyle(color: AgroviaColors.textSecondary),
                 border: InputBorder.none,
-                icon: Icon(Icons.search_rounded),
+                icon: Icon(Icons.search_rounded, color: AgroviaColors.primary),
               ),
             ),
           ),
@@ -176,22 +184,24 @@ class _MarketScreenState extends State<MarketScreen> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(_error!, style: const TextStyle(color: Colors.orange, fontSize: 12, fontStyle: FontStyle.italic)),
+              child: Text(_error!, style: const TextStyle(color: AgroviaColors.accentWarning, fontSize: 12, fontStyle: FontStyle.italic)),
             ),
 
           // Mandi list
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(40.0),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: CircularProgressIndicator(color: AgroviaColors.primary)),
             )
           else if (_filteredPrices.isEmpty)
             const Padding(
               padding: EdgeInsets.all(40.0),
-              child: Center(child: Text('No matching commodities found.')),
+              child: Center(child: Text('No matching commodities found.', style: TextStyle(color: AgroviaColors.textSecondary))),
             )
           else
             ..._filteredPrices.map((p) => _buildMandiCard(p)),
+
+          const SizedBox(height: 80),
         ],
       ),
     );
@@ -211,6 +221,8 @@ class _MarketScreenState extends State<MarketScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12.0),
       child: GlassContainer(
+        surfaceColor: AgroviaColors.glassSurfaceDark,
+        borderColor: AgroviaColors.glassBorderDark,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -221,7 +233,7 @@ class _MarketScreenState extends State<MarketScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('$commodity ($variety)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text('$commodity ($variety)', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AgroviaColors.textPrimary)),
                       const SizedBox(height: 2),
                       Text('$market Mandi • $state', style: const TextStyle(fontSize: 12, color: AgroviaColors.textSecondary)),
                     ],
@@ -234,8 +246,15 @@ class _MarketScreenState extends State<MarketScreen> {
                         ? AgroviaColors.accentGreen.withValues(alpha: 0.15)
                         : isDown
                             ? AgroviaColors.accentDanger.withValues(alpha: 0.15)
-                            : Colors.grey.withValues(alpha: 0.15),
+                            : AgroviaColors.textSecondary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: isUp
+                          ? AgroviaColors.accentGreen.withValues(alpha: 0.3)
+                          : isDown
+                              ? AgroviaColors.accentDanger.withValues(alpha: 0.3)
+                              : AgroviaColors.textSecondary.withValues(alpha: 0.3),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -243,7 +262,7 @@ class _MarketScreenState extends State<MarketScreen> {
                       Icon(
                         isUp ? Icons.arrow_upward_rounded : isDown ? Icons.arrow_downward_rounded : Icons.remove_rounded,
                         size: 14,
-                        color: isUp ? AgroviaColors.accentGreen : isDown ? AgroviaColors.accentDanger : Colors.grey,
+                        color: isUp ? AgroviaColors.accentGreen : isDown ? AgroviaColors.accentDanger : AgroviaColors.textSecondary,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -251,7 +270,7 @@ class _MarketScreenState extends State<MarketScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: isUp ? AgroviaColors.accentGreen : isDown ? AgroviaColors.accentDanger : Colors.grey,
+                          color: isUp ? AgroviaColors.accentGreen : isDown ? AgroviaColors.accentDanger : AgroviaColors.textSecondary,
                         ),
                       ),
                     ],
@@ -268,7 +287,7 @@ class _MarketScreenState extends State<MarketScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Modal Price', style: TextStyle(fontSize: 10, color: AgroviaColors.textSecondary)),
-                    Text('₹${modalPrice.toStringAsFixed(0)}/q', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                    Text('₹${modalPrice.toStringAsFixed(0)}/q', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AgroviaColors.primary)),
                   ],
                 ),
                 Column(
@@ -277,7 +296,7 @@ class _MarketScreenState extends State<MarketScreen> {
                     const Text('Min - Max', style: TextStyle(fontSize: 10, color: AgroviaColors.textSecondary)),
                     Text(
                       '₹${p['minPrice']} - ₹${p['maxPrice']}',
-                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AgroviaColors.textPrimary),
                     ),
                   ],
                 ),

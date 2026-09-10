@@ -26,7 +26,7 @@ class VisionXService {
     try {
       final options = InterpreterOptions()..threads = 4;
       // Load model
-      _interpreter = await Interpreter.fromAsset('assets/models/model.tflite', options: options);
+      _interpreter = await Interpreter.fromAsset('assets/models/agrovia_model.tflite', options: options);
 
       // Load labels
       final labelData = await rootBundle.loadString('assets/models/labels.txt');
@@ -150,9 +150,14 @@ class VisionXService {
 
     // Advisory lookup — fail-safe, never crash if key missing
     final Map<String, dynamic>? advice = _advisory[label] as Map<String, dynamic>?;
+    final bool isUnregistered = advice == null || confidence < 0.35 || label == 'Unknown';
+
     if (advice != null) {
       cropName = (advice['crop'] as String?) ?? cropName;
       diseaseName = (advice['condition'] as String?) ?? diseaseName;
+    } else if (isUnregistered) {
+      cropName = 'Unregistered';
+      diseaseName = 'Crop is not registered in database';
     }
 
     // Customize metrics based on health
@@ -209,6 +214,9 @@ class VisionXService {
       fallbackWarning: isHealthy ? 'N/A' : 'Use full PPE (mask, gloves, goggles).',
     );
 
+    // Extract list fields from advisory (safe casts)
+    List<String> strList(dynamic v) => (v as List?)?.map((e) => e.toString()).toList() ?? [];
+
     return DiagnosisResult(
       id: 'diag_${DateTime.now().millisecondsSinceEpoch}',
       cropName: cropName,
@@ -222,6 +230,14 @@ class VisionXService {
       radarMetrics: radarMetrics,
       organicTreatment: organicTreatment,
       chemicalTreatment: chemicalTreatment,
+      symptoms: strList(advice?['symptoms']),
+      cultural: strList(advice?['cultural']),
+      organic: strList(advice?['organic']),
+      chemical: strList(advice?['chemical']),
+      precautions: strList(advice?['precautions']),
+      harvestWindow: advice?['harvest_window'] as String?,
+      harvestIndicators: (advice?['harvest_indicators'] as List?)?.map((e) => e.toString()).toList(),
+      isUnregistered: isUnregistered,
     );
   }
 

@@ -129,13 +129,14 @@ class _YojanaHubScreenState extends State<YojanaHubScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AgroviaColors.backgroundDark,
       appBar: AppBar(
-        title: const Text('Yojana Hub', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: const Text('Yojana Hub', style: TextStyle(fontWeight: FontWeight.bold, color: AgroviaColors.textPrimary)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh_rounded),
+            icon: const Icon(Icons.refresh_rounded, color: AgroviaColors.textPrimary),
             onPressed: _fetchSchemes,
           ),
         ],
@@ -146,18 +147,19 @@ class _YojanaHubScreenState extends State<YojanaHubScreen> {
           // Eligibility Checker Card
           GlassContainer(
             padding: const EdgeInsets.all(16.0),
-            surfaceColor: AgroviaColors.primaryLight,
+            surfaceColor: AgroviaColors.glassSurfaceDark,
+            borderColor: AgroviaColors.glassBorderDark,
             child: Row(
               children: [
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Check Eligibility', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AgroviaColors.primaryDark)),
+                      const Text('Check Eligibility', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AgroviaColors.textPrimary)),
                       const SizedBox(height: 4),
                       Text(
                         'Answer 5 simple questions to see which schemes you qualify for.',
-                        style: TextStyle(fontSize: 12, color: AgroviaColors.primaryDark.withValues(alpha: 0.7)),
+                        style: TextStyle(fontSize: 12, color: AgroviaColors.textSecondary.withValues(alpha: 0.7)),
                       ),
                     ],
                   ),
@@ -180,16 +182,16 @@ class _YojanaHubScreenState extends State<YojanaHubScreen> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(_error!, style: const TextStyle(color: Colors.orange, fontSize: 12, fontStyle: FontStyle.italic)),
+              child: Text(_error!, style: const TextStyle(color: AgroviaColors.accentWarning, fontSize: 12, fontStyle: FontStyle.italic)),
             ),
 
-          const Text('Recommended Schemes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('Recommended Schemes', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AgroviaColors.textPrimary)),
           const SizedBox(height: 12),
 
           if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(40.0),
-              child: Center(child: CircularProgressIndicator()),
+              child: Center(child: CircularProgressIndicator(color: AgroviaColors.primary)),
             )
           else
             ..._schemes.map((s) => _buildSchemeCard(s)),
@@ -208,6 +210,8 @@ class _YojanaHubScreenState extends State<YojanaHubScreen> {
       child: GestureDetector(
         onTap: () => _showSchemeDetails(scheme),
         child: GlassContainer(
+          surfaceColor: AgroviaColors.glassSurfaceDark,
+          borderColor: AgroviaColors.glassBorderDark,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -218,6 +222,7 @@ class _YojanaHubScreenState extends State<YojanaHubScreen> {
                     decoration: BoxDecoration(
                       color: categoryColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: categoryColor.withValues(alpha: 0.3)),
                     ),
                     child: Text(categoryLabel, style: TextStyle(fontSize: 10, color: categoryColor, fontWeight: FontWeight.bold)),
                   ),
@@ -229,7 +234,7 @@ class _YojanaHubScreenState extends State<YojanaHubScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-              Text(scheme['nameEn'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text(scheme['nameEn'] ?? '', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AgroviaColors.textPrimary)),
               const SizedBox(height: 4),
               Text(
                 scheme['description'] ?? '',
@@ -240,9 +245,8 @@ class _YojanaHubScreenState extends State<YojanaHubScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Text(scheme['ministry'] ?? '', style: const TextStyle(fontSize: 10, color: AgroviaColors.textSecondary)),
-                  const Spacer(),
-                  const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AgroviaColors.primaryDark),
+                  Expanded(child: Text(scheme['ministry'] ?? '', style: const TextStyle(fontSize: 10, color: AgroviaColors.textSecondary))),
+                  const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: AgroviaColors.primary),
                 ],
               ),
             ],
@@ -254,11 +258,11 @@ class _YojanaHubScreenState extends State<YojanaHubScreen> {
 
   Color _getCategoryColor(String category) {
     switch (category) {
-      case 'FINANCIAL': return Colors.green;
-      case 'SOLAR_IRRIGATION': return Colors.orange;
-      case 'INSURANCE': return Colors.blue;
-      case 'SOIL_FERTILIZER': return Colors.brown;
-      default: return AgroviaColors.primaryDark;
+      case 'FINANCIAL': return AgroviaColors.accentGreen;
+      case 'SOLAR_IRRIGATION': return AgroviaColors.accentWarning;
+      case 'INSURANCE': return AgroviaColors.primary;
+      case 'SOIL_FERTILIZER': return const Color(0xFFA78BFA);
+      default: return AgroviaColors.primary;
     }
   }
 
@@ -311,23 +315,26 @@ class _EligibilitySheetState extends State<_EligibilitySheet> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AgroviaColors.backgroundDark,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border(top: BorderSide(color: AgroviaColors.glassBorderDark)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2))),
+          Container(width: 40, height: 4, decoration: BoxDecoration(color: AgroviaColors.textSecondary.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
           const SizedBox(height: 20),
-          Text('Step ${_step + 1} of ${questions.length}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text('Step ${_step + 1} of ${questions.length}', style: const TextStyle(fontSize: 12, color: AgroviaColors.textSecondary)),
           const SizedBox(height: 16),
-          LinearProgressIndicator(value: (_step + 1) / questions.length, backgroundColor: Colors.grey[200], color: AgroviaColors.primaryDark),
+          LinearProgressIndicator(value: (_step + 1) / questions.length, backgroundColor: AgroviaColors.glassSurfaceDark, color: AgroviaColors.primary),
           const SizedBox(height: 20),
-          Text(questions[_step], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+          Text(questions[_step], style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AgroviaColors.textPrimary), textAlign: TextAlign.center),
           const SizedBox(height: 24),
           if (_step == 2)
             DropdownButton<String>(
               value: _state,
+              dropdownColor: AgroviaColors.backgroundDark,
+              style: const TextStyle(color: AgroviaColors.textPrimary),
               items: ['Madhya Pradesh', 'Maharashtra', 'Rajasthan', 'Gujarat', 'Uttar Pradesh', 'Punjab', 'Haryana', 'Karnataka']
                   .map((s) => DropdownMenuItem(value: s, child: Text(s))).toList(),
               onChanged: (val) { if (val != null) setState(() => _state = val); },
@@ -336,9 +343,9 @@ class _EligibilitySheetState extends State<_EligibilitySheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                ElevatedButton(onPressed: () { _hasLand = true; _next(); }, style: ElevatedButton.styleFrom(backgroundColor: AgroviaColors.primaryDark), child: const Text('हाँ / Yes')),
+                ElevatedButton(onPressed: () { _hasLand = true; _next(); }, style: ElevatedButton.styleFrom(backgroundColor: AgroviaColors.primary, foregroundColor: Colors.black87), child: const Text('हाँ / Yes')),
                 const SizedBox(width: 16),
-                OutlinedButton(onPressed: () { _hasLand = false; _next(); }, child: const Text('नहीं / No')),
+                OutlinedButton(onPressed: () { _hasLand = false; _next(); }, style: OutlinedButton.styleFrom(foregroundColor: AgroviaColors.textPrimary, side: const BorderSide(color: AgroviaColors.glassBorderDark)), child: const Text('नहीं / No')),
               ],
             ),
           const SizedBox(height: 24),
@@ -361,22 +368,23 @@ class _SchemeDetailsSheet extends StatelessWidget {
       height: MediaQuery.of(context).size.height * 0.75,
       padding: const EdgeInsets.all(24),
       decoration: const BoxDecoration(
-        color: Colors.white,
+        color: AgroviaColors.backgroundDark,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        border: Border(top: BorderSide(color: AgroviaColors.glassBorderDark)),
       ),
       child: ListView(
         children: [
-          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(2)))),
+          Center(child: Container(width: 40, height: 4, decoration: BoxDecoration(color: AgroviaColors.textSecondary.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2)))),
           const SizedBox(height: 16),
-          Text(scheme['nameEn'] ?? '', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(scheme['nameEn'] ?? '', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AgroviaColors.textPrimary)),
           const SizedBox(height: 4),
-          Text(scheme['nameHi'] ?? '', style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          Text(scheme['nameHi'] ?? '', style: const TextStyle(fontSize: 14, color: AgroviaColors.textSecondary)),
           const SizedBox(height: 8),
-          Text(scheme['ministry'] ?? '', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(scheme['ministry'] ?? '', style: const TextStyle(fontSize: 12, color: AgroviaColors.textSecondary)),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: AgroviaColors.accentGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: AgroviaColors.accentGreen.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: AgroviaColors.accentGreen.withValues(alpha: 0.3))),
             child: Row(
               children: [
                 const Icon(Icons.verified_rounded, color: AgroviaColors.accentGreen),
@@ -386,11 +394,11 @@ class _SchemeDetailsSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Text('Description', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text('Description', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AgroviaColors.textPrimary)),
           const SizedBox(height: 6),
-          Text(scheme['description'] ?? '', style: const TextStyle(fontSize: 14, color: Colors.black87)),
+          Text(scheme['description'] ?? '', style: const TextStyle(fontSize: 14, color: AgroviaColors.textSecondary)),
           const SizedBox(height: 16),
-          const Text('Eligibility Criteria', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text('Eligibility Criteria', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AgroviaColors.textPrimary)),
           const SizedBox(height: 6),
           ...criteria.map((c) => Padding(
             padding: const EdgeInsets.only(bottom: 4),
@@ -399,19 +407,20 @@ class _SchemeDetailsSheet extends StatelessWidget {
               children: [
                 const Icon(Icons.check_circle_outline, size: 16, color: AgroviaColors.accentGreen),
                 const SizedBox(width: 6),
-                Expanded(child: Text(c, style: const TextStyle(fontSize: 13))),
+                Expanded(child: Text(c, style: const TextStyle(fontSize: 13, color: AgroviaColors.textPrimary))),
               ],
             ),
           )),
           const SizedBox(height: 16),
-          const Text('Required Documents', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          const Text('Required Documents', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AgroviaColors.textPrimary)),
           const SizedBox(height: 6),
           Wrap(
             spacing: 8,
             runSpacing: 6,
             children: docs.map((d) => Chip(
-              label: Text(d, style: const TextStyle(fontSize: 11)),
-              backgroundColor: AgroviaColors.primaryLight,
+              label: Text(d, style: const TextStyle(fontSize: 11, color: AgroviaColors.textPrimary)),
+              backgroundColor: AgroviaColors.glassSurfaceDark,
+              side: const BorderSide(color: AgroviaColors.glassBorderDark),
             )).toList(),
           ),
           const SizedBox(height: 24),
@@ -420,8 +429,8 @@ class _SchemeDetailsSheet extends StatelessWidget {
               // Open official URL
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: AgroviaColors.primaryDark,
-              foregroundColor: Colors.white,
+              backgroundColor: AgroviaColors.primary,
+              foregroundColor: Colors.black87,
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),

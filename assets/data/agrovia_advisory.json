@@ -1,0 +1,1051 @@
+{
+  "Tomato___healthy": {
+    "crop": "Tomato",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Soybean___healthy": {
+    "crop": "Soybean",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "95-115 days after sowing (R8 stage)",
+    "harvest_indicators": [
+      "95% of pods have turned mature brown/tan color",
+      "All leaves have turned yellow, desiccated and dropped (complete defoliation)",
+      "Stems turn brittle and brown"
+    ]
+  },
+  "Tomato___Target_Spot": {
+    "crop": "Tomato",
+    "condition": "Target Spot",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Tomato___Late_blight": {
+    "crop": "Tomato",
+    "condition": "Late blight",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Tomato___Septoria_leaf_spot": {
+    "crop": "Tomato",
+    "condition": "Septoria leaf spot",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Apple___healthy": {
+    "crop": "Apple",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Variety and elevation dependent (typically 120-180 days after full bloom)",
+    "harvest_indicators": [
+      "Background ground color changes from green to yellow/cream",
+      "Development of characteristic red/blush over-color",
+      "Seeds turn brown/black"
+    ]
+  },
+  "Peach___Bacterial_spot": {
+    "crop": "Peach",
+    "condition": "Bacterial spot",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "90-120 days after bloom",
+    "harvest_indicators": [
+      "Under-skin ground color changes from green to yellow/creamy-white",
+      "Blush development on sun-exposed shoulder"
+    ]
+  },
+  "Orange___Haunglongbing_(Citrus_greening)": {
+    "crop": "Orange",
+    "condition": "Haunglongbing (Citrus greening)",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "210-270 days from flowering depending on bloom season (Ambia / Mrig / Hastha bahar)",
+    "harvest_indicators": [
+      "Fruit rind changes from dark green to bright orange/yellowish-green (or full orange in cool climates)",
+      "Oil glands on rind become prominent and shiny"
+    ]
+  },
+  "Blueberry___healthy": {
+    "crop": "Blueberry",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Berry-by-berry ripening over 3-6 weeks",
+    "harvest_indicators": [
+      "100% deep blue surface color with no reddish-pink stem attachment area",
+      "Presence of whitish natural waxy bloom"
+    ]
+  },
+  "Apple___Apple_scab": {
+    "crop": "Apple",
+    "condition": "Apple scab",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Variety and elevation dependent (typically 120-180 days after full bloom)",
+    "harvest_indicators": [
+      "Background ground color changes from green to yellow/cream",
+      "Development of characteristic red/blush over-color",
+      "Seeds turn brown/black"
+    ]
+  },
+  "Grape___Esca_(Black_Measles)": {
+    "crop": "Grape",
+    "condition": "Esca (Black Measles)",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "110-140 days after forward pruning",
+    "harvest_indicators": [
+      "Berries reach characteristic variety color (amber-yellow for Thompson, black for Sharad)",
+      "Bunch stem (peduncle) turns woody and brownish near base",
+      "Bloom (waxy coating) even and intact"
+    ]
+  },
+  "Strawberry___Leaf_scorch": {
+    "crop": "Strawberry",
+    "condition": "Leaf scorch",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Harvest every 2-3 days; 30-40 days after full bloom",
+    "harvest_indicators": [
+      "At least 75-90% fruit surface red for distant shipping; 100% full red for local market",
+      "Seeds (achenes) bright and calyx leaves vibrant green"
+    ]
+  },
+  "Tomato___Tomato_Yellow_Leaf_Curl_Virus": {
+    "crop": "Tomato",
+    "condition": "Tomato Yellow Leaf Curl Virus",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Bell_Pepper___healthy": {
+    "crop": "Bell Pepper",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Squash___Powdery_mildew": {
+    "crop": "Squash",
+    "condition": "Powdery mildew",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Summer squash: 45-60 days (immature); Winter squash/pumpkin: 90-120 days (mature)",
+    "harvest_indicators": [
+      "Summer squash: tender glossy skin, 15-20 cm length; Winter squash: dull hard skin, rind color fully developed",
+      "Stem turns corky, dry and woody (winter types)"
+    ]
+  },
+  "Tomato___Bacterial_spot": {
+    "crop": "Tomato",
+    "condition": "Bacterial spot",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Tomato___Spider_mites_Two-spotted_spider_mite": {
+    "crop": "Tomato",
+    "condition": "Spider mites Two-spotted spider mite",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Apple___Black_rot": {
+    "crop": "Apple",
+    "condition": "Black rot",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Variety and elevation dependent (typically 120-180 days after full bloom)",
+    "harvest_indicators": [
+      "Background ground color changes from green to yellow/cream",
+      "Development of characteristic red/blush over-color",
+      "Seeds turn brown/black"
+    ]
+  },
+  "Maize___Northern_Leaf_Blight": {
+    "crop": "Maize",
+    "condition": "Northern Leaf Blight",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "90-120 days after sowing depending on hybrid and season",
+    "harvest_indicators": [
+      "Husks turn dry, pale brown and papery",
+      "Black layer formation at the kernel base (placental pad closure)",
+      "Leaves and stalks begin senescing"
+    ]
+  },
+  "Tomato___Tomato_mosaic_virus": {
+    "crop": "Tomato",
+    "condition": "Tomato mosaic virus",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Grape___Black_rot": {
+    "crop": "Grape",
+    "condition": "Black rot",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "110-140 days after forward pruning",
+    "harvest_indicators": [
+      "Berries reach characteristic variety color (amber-yellow for Thompson, black for Sharad)",
+      "Bunch stem (peduncle) turns woody and brownish near base",
+      "Bloom (waxy coating) even and intact"
+    ]
+  },
+  "Tomato___Leaf_Mold": {
+    "crop": "Tomato",
+    "condition": "Leaf Mold",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Maize___Common_rust_": {
+    "crop": "Maize",
+    "condition": "Common rust ",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "90-120 days after sowing depending on hybrid and season",
+    "harvest_indicators": [
+      "Husks turn dry, pale brown and papery",
+      "Black layer formation at the kernel base (placental pad closure)",
+      "Leaves and stalks begin senescing"
+    ]
+  },
+  "Potato___Late_blight": {
+    "crop": "Potato",
+    "condition": "Late blight",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "80-110 days after planting depending on maturity group (early/medium/late)",
+    "harvest_indicators": [
+      "Vines turn yellow and naturally senesce (or 10-15 days post-dehaulming)",
+      "Tuber skin is firm and does not peel/feather under firm thumb rub"
+    ]
+  },
+  "Tomato___Powdery_mildew": {
+    "crop": "Tomato",
+    "condition": "Powdery mildew",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Tomato___Early_blight": {
+    "crop": "Tomato",
+    "condition": "Early blight",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Bell_Pepper___Bacterial_spot": {
+    "crop": "Bell Pepper",
+    "condition": "Bacterial spot",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "60-80 days from transplanting for first picking, continuous picking over 6-10 weeks",
+    "harvest_indicators": [
+      "Harvest stage tailored to market: Breaker stage (first yellow/pink star at blossom end) for long distance; Turning/Pink (30-60% color) for medium transit; Red ripe (>90% deep red) for local processing",
+      "Fruit surface is smooth, shiny, and fully expanded"
+    ]
+  },
+  "Potato___Early_blight": {
+    "crop": "Potato",
+    "condition": "Early blight",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "80-110 days after planting depending on maturity group (early/medium/late)",
+    "harvest_indicators": [
+      "Vines turn yellow and naturally senesce (or 10-15 days post-dehaulming)",
+      "Tuber skin is firm and does not peel/feather under firm thumb rub"
+    ]
+  },
+  "Raspberry___healthy": {
+    "crop": "Raspberry",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Daily or alternate day picking during ripening flush",
+    "harvest_indicators": [
+      "Full deep red/purple varietal color across all drupelets",
+      "No green/white drupelets remaining"
+    ]
+  },
+  "Maize___healthy": {
+    "crop": "Maize",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "90-120 days after sowing depending on hybrid and season",
+    "harvest_indicators": [
+      "Husks turn dry, pale brown and papery",
+      "Black layer formation at the kernel base (placental pad closure)",
+      "Leaves and stalks begin senescing"
+    ]
+  },
+  "Apple___Cedar_apple_rust": {
+    "crop": "Apple",
+    "condition": "Cedar apple rust",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Variety and elevation dependent (typically 120-180 days after full bloom)",
+    "harvest_indicators": [
+      "Background ground color changes from green to yellow/cream",
+      "Development of characteristic red/blush over-color",
+      "Seeds turn brown/black"
+    ]
+  },
+  "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)": {
+    "crop": "Grape",
+    "condition": "Leaf blight (Isariopsis Leaf Spot)",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "110-140 days after forward pruning",
+    "harvest_indicators": [
+      "Berries reach characteristic variety color (amber-yellow for Thompson, black for Sharad)",
+      "Bunch stem (peduncle) turns woody and brownish near base",
+      "Bloom (waxy coating) even and intact"
+    ]
+  },
+  "Strawberry___healthy": {
+    "crop": "Strawberry",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "Harvest every 2-3 days; 30-40 days after full bloom",
+    "harvest_indicators": [
+      "At least 75-90% fruit surface red for distant shipping; 100% full red for local market",
+      "Seeds (achenes) bright and calyx leaves vibrant green"
+    ]
+  },
+  "Potato___healthy": {
+    "crop": "Potato",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "80-110 days after planting depending on maturity group (early/medium/late)",
+    "harvest_indicators": [
+      "Vines turn yellow and naturally senesce (or 10-15 days post-dehaulming)",
+      "Tuber skin is firm and does not peel/feather under firm thumb rub"
+    ]
+  },
+  "Peach___healthy": {
+    "crop": "Peach",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "90-120 days after bloom",
+    "harvest_indicators": [
+      "Under-skin ground color changes from green to yellow/creamy-white",
+      "Blush development on sun-exposed shoulder"
+    ]
+  },
+  "Grape___healthy": {
+    "crop": "Grape",
+    "condition": "healthy",
+    "severity": "none",
+    "symptoms": [
+      "Normal growth, no lesions"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "110-140 days after forward pruning",
+    "harvest_indicators": [
+      "Berries reach characteristic variety color (amber-yellow for Thompson, black for Sharad)",
+      "Bunch stem (peduncle) turns woody and brownish near base",
+      "Bloom (waxy coating) even and intact"
+    ]
+  },
+  "Maize___Cercospora_leaf_spot_Gray_leaf_spot": {
+    "crop": "Maize",
+    "condition": "Cercospora leaf spot Gray leaf spot",
+    "severity": "moderate",
+    "symptoms": [
+      "Lesions, discoloration, spots on leaves"
+    ],
+    "cultural": [
+      "Crop rotation",
+      "Proper spacing"
+    ],
+    "organic": [
+      "Neem oil, biocontrol agents where approved"
+    ],
+    "chemical": [
+      "consult_local_registered_label"
+    ],
+    "precautions": [
+      "Follow label instructions",
+      "Use PPE during spray",
+      "Observe pre-harvest intervals"
+    ],
+    "harvest_window": "90-120 days after sowing depending on hybrid and season",
+    "harvest_indicators": [
+      "Husks turn dry, pale brown and papery",
+      "Black layer formation at the kernel base (placental pad closure)",
+      "Leaves and stalks begin senescing"
+    ]
+  }
+}
